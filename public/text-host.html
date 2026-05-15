@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Text Hosting | DSCLOUD</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="text-host-page">
+    <header class="topbar text-topbar">
+        <div class="brand" role="button" tabindex="0" onclick="window.location.href='/'" onkeydown="if(event.key==='Enter')window.location.href='/'">
+            <img class="brand-mark" src="logo.png" alt="DSCLOUD logo" />
+            <div>
+                <h1>DSCLOUD</h1>
+                <p>Fast media hosting with focused tools.</p>
+            </div>
+        </div>
+        <nav>
+            <a href="/">Upload</a>
+            <a href="text-host.html">Text</a>
+            <a href="delete.html">Delete</a>
+            <a href="api-docs.html">API</a>
+            <a href="privacy.html">Privacy</a>
+            <a href="terms.html">Terms</a>
+            <span id="auth-links"></span>
+        </nav>
+    </header>
+
+    <main class="text-host-shell">
+        <div id="auth-section" class="auth-section" hidden>
+            <section class="panel auth-panel">
+                <article class="card card-wide auth-card">
+                    <div class="card-header">
+                        <h3>Welcome to DSCLOUD</h3>
+                        <p>Sign in to access text hosting and manage your pastes.</p>
+                    </div>
+
+                    <div class="auth-form-container">
+                        <button type="button" id="google-auth-button" class="button secondary auth-google">
+                            <svg width="18" height="18" viewBox="0 0 24 24">
+                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                <path fill="#34A853" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                <path fill="#FBBC05" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                                <path fill="#EA4335" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            </svg>
+                            Continue with Google
+                        </button>
+
+                        <div class="auth-divider">
+                            <span>or</span>
+                        </div>
+
+                        <form id="auth-form" class="simple-form">
+                            <label class="field-label" for="email">Email address</label>
+                            <input id="email" type="email" placeholder="you@example.com" required />
+
+                            <button type="button" id="send-code-button" class="button primary">Get verification code</button>
+
+                            <div id="code-section" hidden>
+                                <label class="field-label" for="code">Verification code</label>
+                                <input id="code" type="text" placeholder="123456" maxlength="6" required />
+                                <button type="submit" id="verify-code-button" class="button primary">Verify & Sign in</button>
+                            </div>
+
+                            <div id="auth-feedback" class="notice" hidden></div>
+                        </form>
+                    </div>
+                </article>
+            </section>
+        </div>
+
+        <div id="upload-section" class="upload-section">
+            <section class="text-hero-panel">
+            <div class="text-hero-copy">
+                <p class="eyebrow">Text links without the clutter</p>
+                <h2>Host notes, snippets, and protected messages from one focused page.</h2>
+                <p>Choose an alias, set passwords when needed, add formatting options, and publish a shareable text page in seconds.</p>
+            </div>
+            <div class="text-motion-board" aria-hidden="true">
+                <span class="motion-line line-one"></span>
+                <span class="motion-line line-two"></span>
+                <span class="motion-line line-three"></span>
+                <span class="motion-chip chip-one">alias</span>
+                <span class="motion-chip chip-two">lock</span>
+                <span class="motion-chip chip-three">raw</span>
+            </div>
+        </section>
+
+        <section class="text-workspace">
+            <form id="text-form" class="text-form text-composer">
+                <div class="composer-main">
+                    <div class="section-kicker">Compose</div>
+                    <label class="field-label" for="text-input">Enter text</label>
+                    <textarea id="text-input" rows="14" maxlength="50000" placeholder="Paste your text here..."></textarea>
+                </div>
+
+                <aside class="settings-panel composer-settings">
+                    <div class="section-kicker">Settings</div>
+                    <label class="field-label" for="custom-alias">Custom alias <span>(optional)</span></label>
+                    <div class="alias-builder">
+                        <input id="custom-alias" placeholder="your-alias" />
+                        <button type="button" id="check-alias-button" class="button tertiary">Check</button>
+                    </div>
+                    <div id="alias-feedback" class="notice" hidden></div>
+
+                    <label class="field-label" for="admin-password">Admin password <span>(needed to edit or delete)</span></label>
+                    <input id="admin-password" type="password" placeholder="Enter admin password" />
+
+                    <label class="field-label" for="view-password">Viewing password <span>(needed to view)</span></label>
+                    <input id="view-password" type="password" placeholder="Enter viewing password" />
+
+                    <label class="field-label" for="day-limit">Day limit <span>(blank = 30 days)</span></label>
+                    <input id="day-limit" type="number" min="0" placeholder="30" />
+
+                    <div class="checkbox-grid text-option-grid">
+                        <label><input type="checkbox" id="opt-preformatted" /> Preformatted text</label>
+                        <label><input type="checkbox" id="opt-clickable" /> Make links clickable</label>
+                        <label><input type="checkbox" id="opt-bbcode" /> Enable BBCode</label>
+                    </div>
+
+                    <button type="button" id="host-text-button" class="button primary publish-button">Host my text</button>
+                </aside>
+            </form>
+
+            <div class="result-panel text-result-panel" id="text-result" hidden>
+                <h4>Text Hosted</h4>
+                <div class="result-grid">
+                    <div><strong>URL</strong><a id="text-url" target="_blank"></a></div>
+                    <div><strong>Raw text</strong><a id="text-raw-url" target="_blank"></a></div>
+                    <div><strong>Delete key</strong><span id="text-delete"></span></div>
+                    <div><strong>Expires</strong><span id="text-expiry"></span></div>
+                </div>
+                <button class="button tertiary" id="copy-text-url">Copy link</button>
+            </div>
+        </section>
+
+        <section class="panel history-section text-history-section" id="text-history-section" hidden>
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Recent text</p>
+                    <h3>Text history</h3>
+                </div>
+                <button type="button" class="button tertiary" id="clear-text-history-button">Clear history</button>
+            </div>
+            <div class="history-grid" id="text-history"></div>
+        </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div>&copy; 2026 DSCLOUD. All rights reserved.</div>
+    </footer>
+
+    <div class="toast" id="toast" hidden></div>
+    <script src="app.js"></script>
+</body>
+</html>

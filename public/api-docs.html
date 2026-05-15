@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Docs | DSCLOUD</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="api-page">
+    <header class="topbar">
+        <div class="brand" role="button" tabindex="0" onclick="window.location.href='/'" onkeydown="if(event.key==='Enter')window.location.href='/'">
+            <img class="brand-mark" src="logo.png" alt="DSCLOUD logo" />
+            <div>
+                <h1>DSCLOUD API</h1>
+                <p>Upload, inspect, delete, and host text programmatically.</p>
+            </div>
+        </div>
+        <nav>
+            <a href="/">Upload</a>
+            <a href="text-host.html">Text</a>
+            <a href="delete.html">Delete</a>
+            <a href="api-docs.html">API</a>
+            <a href="privacy.html">Privacy</a>
+            <a href="terms.html">Terms</a>
+            <span id="auth-links"></span>
+        </nav>
+    </header>
+
+    <main class="api-reference-shell">
+        <section class="api-reference-hero">
+            <h2>API <span>Reference</span></h2>
+            <p>Integrate DSCLOUD into your apps with a simple REST API.</p>
+        </section>
+
+        <section class="api-reference-list">
+            <article class="api-reference-card">
+                <div class="endpoint-title">
+                    <span class="method post">POST</span>
+                    <h3>/api/upload</h3>
+                </div>
+                <p>Upload an image or video file. Returns a shareable URL and delete key.</p>
+                <pre class="code-sample"><code>curl -X POST https://dscloud.vercel.app/api/upload \
+  -F "file=@image.png"</code></pre>
+                <div class="response-label">Response:</div>
+                <pre class="code-sample"><code>{
+  "success": true,
+  "id": "aBcDeFgH",
+  "url": "https://dscloud.vercel.app/file/aBcDeFgH",
+  "directlink": "https://dscloud.vercel.app/f/aBcDeFgH.jpg",
+  "downloadlink": "https://dscloud.vercel.app/file/aBcDeFgH?dl"
+  "deleteKey": "a1b2c3d4...",
+  "originalName": "image.png",
+  "size": 245760,
+  "type": "image/png",
+  "views": 0,
+  "uploadedAt": "2026-05-14 17:18:29"
+}</code></pre>
+            </article>
+
+            <article class="api-reference-card">
+                <div class="endpoint-title">
+                    <span class="method post">POST</span>
+                    <h3>/api/upload-url</h3>
+                </div>
+                <p>Upload a file by providing a remote URL. The server fetches and hosts it for you.</p>
+                <pre class="code-sample"><code>curl -X POST https://dscloud.vercel.app/api/upload-url \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://example.com/image.jpg"}'</code></pre>
+                <div class="response-label">Response:</div>
+                <pre class="code-sample"><code>{
+  "success": true,
+  "id": "rEmOtE42",
+  "url": "https://dscloud.vercel.app/file/rEmOtE42",
+  "directlink": "https://dscloud.vercel.app/f/rEmOtE42.jpg",
+  "downloadlink": "https://dscloud.vercel.app/file/rEmOtE42?dl"
+  "deleteKey": "35EmOtE42...",
+  "originalName": "image.png",
+  "size": 245760,
+  "type": "image/png",
+  "views": 0,
+  "uploadedAt": "2026-05-14 17:18:29"
+}</code></pre>
+            </article>
+
+            <article class="api-reference-card">
+                <div class="endpoint-title">
+                    <span class="method get">GET</span>
+                    <h3>/f/:filename</h3>
+                </div>
+                <p>Access a file directly with a custom extension (e.g., <code>.png</code>). This is a direct resource link that skips view counting.</p>
+                <pre class="code-sample"><code>curl -O https://dscloud.vercel.app/f/aBcDeFgH.png</code></pre>
+                <div class="response-label">Response:</div>
+                <pre class="code-sample"><code>file get download in current directory. Matches the original file's Content-Type.</code></pre>
+            </article>
+
+
+            <article class="api-reference-card">
+                <div class="endpoint-title">
+                    <span class="method get">GET</span>
+                    <h3>/api/info/:id</h3>
+                </div>
+                <p>Read file metadata without downloading the media.</p>
+                <pre class="code-sample"><code>curl https://dscloud.vercel.app/api/info/aBcDeFgH</code></pre>
+                <div class="response-label">Response:</div>
+                <pre class="code-sample"><code>{
+  "success": true,
+  "id": "aBcDeFgH",
+  "originalName": "image.png",
+  "size": 245760,
+  "type": "image/png",
+  "views": 12,
+  "uploadedAt": 1683886500000
+}</code></pre>
+            </article>
+
+            <article class="api-reference-card">
+                <div class="endpoint-title">
+                    <span class="method post">POST</span>
+                    <h3>/api/delete/:id</h3>
+                </div>
+                <p>Delete a hosted media file using the delete key returned during upload.</p>
+                <pre class="code-sample"><code>curl -X POST https://dscloud.vercel.app/api/delete/aBcDeFgH \
+  -H "Content-Type: application/json" \
+  -d '{"deleteKey":"a1b2c3d4..."}'</code></pre>
+                <div class="response-label">Response:</div>
+                <pre class="code-sample"><code>{
+  "success": true,
+  "deleted": true
+}</code></pre>
+            </article>
+
+            <article class="api-reference-card">
+                <div class="endpoint-title">
+                    <span class="method get">GET</span>
+                    <h3>/api/stats</h3>
+                </div>
+                <p>Fetch public service statistics and current usage limits.</p>
+                <pre class="code-sample"><code>curl https://dscloud.vercel.app/api/stats</code></pre>
+                <div class="response-label">Response:</div>
+                <pre class="code-sample"><code>{
+  "success": true,
+  "totalUploads": 1280,
+  "totalViews": 9420,
+  "bandwidth": 734003200,
+  "filesStored": 840,
+  "textsStored": 440,
+  "limits": {
+    "mediaUploadsPerHour": 50,
+    "textUploadsPerHour": 100,
+    "maxFileSize": "20MB",
+    "supportedMedia": ["JPEG", "PNG", "GIF", "WebP", "AVIF", "MP4", "WebM"]
+  },
+  "botHealth": "online"
+}</code></pre>
+            </article>
+
+            <article class="api-reference-card">
+                <div class="endpoint-title">
+                    <span class="method post">POST</span>
+                    <h3>/api/text</h3>
+                </div>
+                <p>Host text with optional alias, admin password, view password, expiration, and formatting options.</p>
+                <pre class="code-sample"><code>curl -X POST https://dscloud.vercel.app/api/text \
+  -H "Content-Type: application/json" \
+  -d '{"text":"Hello DSCLOUD","alias":"hello","options":{"clickable":true}}'</code></pre>
+                <div class="response-label">Response:</div>
+                <pre class="code-sample"><code>{
+  "success": true,
+  "alias": "hello",
+  "url": "https://dscloud.vercel.app/text.html?alias=hello",
+  "rawUrl": "https://dscloud.vercel.app/t/hello",
+  "deleteKey": "6a7b8c9d...",
+  "expiresAt": "2026-06-12T10:00:00.000Z"
+}</code></pre>
+            </article>
+
+            <article class="api-reference-card">
+                <div class="endpoint-title">
+                    <span class="method get">GET</span>
+                    <h3>/api/check-alias/:alias</h3>
+                </div>
+                <p>Check whether a custom text alias is available before creating a hosted text entry.</p>
+                <pre class="code-sample"><code>curl https://dscloud.vercel.app/api/check-alias/hello</code></pre>
+                <div class="response-label">Response:</div>
+                <pre class="code-sample"><code>{
+  "success": true,
+  "available": true
+}</code></pre>
+            </article>
+
+            <article class="api-reference-card">
+                <div class="endpoint-title">
+                    <span class="method get">GET</span>
+                    <h3>/t/:alias</h3>
+                </div>
+                <p>Open the raw hosted text response for an alias.</p>
+                <pre class="code-sample"><code>curl https://dscloud.vercel.app/t/hello</code></pre>
+                <div class="response-label">Response:</div>
+                <pre class="code-sample"><code>Hello DSCLOUD</code></pre>
+            </article>
+
+            <article class="api-reference-card">
+                <div class="endpoint-title">
+                    <span class="method get">GET</span>
+                    <h3>/api/text/metadata/:alias</h3>
+                </div>
+                <p>Inspect a hosted text entry before loading its content.</p>
+                <pre class="code-sample"><code>curl https://dscloud.vercel.app/api/text/metadata/hello</code></pre>
+                <div class="response-label">Response:</div>
+                <pre class="code-sample"><code>{
+  "success": true,
+  "alias": "hello",
+  "views": 3,
+  "protected": false,
+  "expiresAt": "2026-06-12T10:00:00.000Z"
+}</code></pre>
+            </article>
+
+            <article class="api-reference-card">
+                <div class="endpoint-title">
+                    <span class="method get">GET</span>
+                    <h3>/api/text/view/:alias</h3>
+                </div>
+                <p>Fetch hosted text. Use <code>?pw=</code> when the text is view-password protected.</p>
+                <pre class="code-sample"><code>curl "https://dscloud.vercel.app/api/text/view/hello?pw=secret"</code></pre>
+                <div class="response-label">Response:</div>
+                <pre class="code-sample"><code>{
+  "success": true,
+  "text": "Hello DSCLOUD",
+  "options": {
+    "preformatted": false,
+    "clickable": true,
+    "bbcode": false
+  }
+}</code></pre>
+            </article>
+
+            <article class="api-reference-card">
+                <div class="endpoint-title">
+                    <span class="method post">POST</span>
+                    <h3>/api/text/update/:alias</h3>
+                </div>
+                <p>Update hosted text content, formatting options, view password, or expiration using the admin password.</p>
+                <pre class="code-sample"><code>curl -X POST https://dscloud.vercel.app/api/text/update/hello \
+  -H "Content-Type: application/json" \
+  -d '{"adminPassword":"admin-secret","text":"Updated text","options":{"preformatted":true}}'</code></pre>
+                <div class="response-label">Response:</div>
+                <pre class="code-sample"><code>{
+  "success": true,
+  "updated": true,
+  "expiresAt": "2026-06-12T10:00:00.000Z"
+}</code></pre>
+            </article>
+
+            <article class="api-reference-card">
+                <div class="endpoint-title">
+                    <span class="method post">POST</span>
+                    <h3>/api/text/delete/:alias</h3>
+                </div>
+                <p>Delete a hosted text entry using its delete key.</p>
+                <pre class="code-sample"><code>curl -X POST https://dscloud.vercel.app/api/text/delete/hello \
+  -H "Content-Type: application/json" \
+  -d '{"deleteKey":"6a7b8c9d..."}'</code></pre>
+                <div class="response-label">Response:</div>
+                <pre class="code-sample"><code>{
+  "success": true,
+  "deleted": true
+}</code></pre>
+            </article>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div>&copy; 2026 DSCLOUD. All rights reserved.</div>
+    </footer>
+    <div class="toast" id="toast" hidden></div>
+    <script src="app.js"></script>
+</body>
+</html>

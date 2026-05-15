@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Delete Media | DSCLOUD</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="delete-page">
+    <header class="topbar">
+        <div class="brand" role="button" tabindex="0" onclick="window.location.href='/'" onkeydown="if(event.key==='Enter')window.location.href='/'">
+            <img class="brand-mark" src="logo.png" alt="DSCLOUD logo" />
+            <div>
+                <h1>DSCLOUD DELETE</h1>
+                <p>Remove hosted media with your delete key.</p>
+            </div>
+        </div>
+        <nav>
+            <a href="/">Upload</a>
+            <a href="text-host.html">Text</a>
+            <a href="delete.html">Delete</a>
+            <a href="api-docs.html">API</a>
+            <a href="privacy.html">Privacy</a>
+            <a href="terms.html">Terms</a>
+            <span id="auth-links"></span>
+        </nav>
+    </header>
+
+    <main class="split-page-shell">
+        <section class="page-hero compact-hero delete-hero">
+            <p class="eyebrow">Delete center</p>
+            <h2>Remove a file from hosting in one controlled step.</h2>
+            <p>Use the file ID and delete key returned during upload. The action is immediate once the key is verified.</p>
+        </section>
+
+        <section class="panel action-panel">
+            <article class="card delete-card">
+                <div class="card-header">
+                    <h3>Delete media</h3>
+                    <p>Enter the exact file ID and delete key for the item you want to remove.</p>
+                </div>
+                <form id="delete-media-form" class="simple-form spacious-form">
+                    <label class="field-label" for="delete-media-id">File ID</label>
+                    <input id="delete-media-id" placeholder="Enter file ID" />
+                    <label class="field-label" for="delete-media-key">Delete key</label>
+                    <input id="delete-media-key" placeholder="Enter delete key" />
+                    <button type="button" id="delete-media-button" class="button danger">Delete forever</button>
+                </form>
+                <div class="notice" id="delete-media-feedback" hidden></div>
+            </article>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div>&copy; 2026 DSCLOUD. All rights reserved.</div>
+    </footer>
+    <div class="toast" id="toast" hidden></div>
+    <script src="app.js"></script>
+</body>
+</html>
+

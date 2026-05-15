@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | DSCLOUD</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="auth-page login-page">
+    <header class="topbar">
+        <div class="brand" role="button" tabindex="0" onclick="window.location.href='/'" onkeydown="if(event.key==='Enter')window.location.href='/'">
+            <img class="brand-mark" src="logo.png" alt="DSCLOUD logo" />
+            <div>
+                <h1>DSCLOUD</h1>
+                <p>Fast media hosting with focused tools.</p>
+            </div>
+        </div>
+        <nav>
+            <a href="/">Upload</a>
+            <a href="text-host.html">Text</a>
+            <a href="register.html">Register</a>
+            <a href="api-docs.html">API</a>
+            <span id="auth-links"></span>
+        </nav>
+    </header>
+
+    <main class="panel auth-panel">
+        <article class="card card-wide">
+            <div class="card-header">
+                <h3 id="auth-title">Login</h3>
+                <p>Use your email and password or continue with Google.</p>
+            </div>
+
+            <form id="auth-form" class="simple-form">
+                <label class="field-label" for="email">Email</label>
+                <input id="email" type="email" placeholder="you@example.com" required />
+
+                <label class="field-label" for="password">Password</label>
+                <input id="password" type="password" placeholder="Enter password" required />
+
+                <button type="submit" id="auth-submit" class="button primary">Sign in</button>
+                <button type="button" id="google-auth-button" class="button secondary">Continue with Google</button>
+                <div id="auth-feedback" class="notice" hidden></div>
+            </form>
+
+            <p class="auth-footer">New here? <a href="register.html">Create an account</a></p>
+        </article>
+    </main>
+
+    <footer class="footer">
+        <div>&copy; 2026 DSCLOUD. All rights reserved.</div>
+    </footer>
+
+    <script src="auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Text | DSCLOUD</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand" role="button" tabindex="0" onclick="window.location.href='/'" onkeydown="if(event.key==='Enter')window.location.href='/'">
+            <img class="brand-mark" src="logo.png" alt="DSCLOUD logo" />
+            <div>
+                <h1>DSCLOUD</h1>
+                <p>Secure text hosting, now with protected view mode.</p>
+            </div>
+        </div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="privacy.html">Privacy</a>
+            <a href="terms.html">Terms</a>
+
+        </nav>
+    </header>
+
+    <main class="content-page">
+        <section class="panel card-wide">
+            <div class="card-header">
+                <h2>Text viewer</h2>
+                <p>Open hosted text with optional view password protection and admin editing.</p>
+            </div>
+            <div id="metadata" class="meta-box" hidden>
+                <div><strong>Alias:</strong> <span id="meta-alias"></span></div>
+                <div><strong>Views:</strong> <span id="meta-views"></span></div>
+                <div><strong>Expires:</strong> <span id="meta-expires"></span></div>
+                <div><strong>Protected:</strong> <span id="meta-protected"></span></div>
+            </div>
+            <div id="password-panel" class="password-card" hidden>
+                <p>This text is protected. Enter the viewing password to continue.</p>
+                <input id="view-password-input" type="password" placeholder="Viewing password" />
+                <button class="button primary" id="unlock-text">Unlock text</button>
+            </div>
+            <div id="text-output" class="text-output" hidden>
+                <div class="text-controls">
+                    <div>
+                        <button id="copy-text-button" class="button secondary">Copy all text</button>
+                        <a id="raw-link" class="button tertiary" target="_blank">Open raw text</a>
+                    </div>
+                </div>
+                <div id="rendered-text" class="rendered-text"></div>
+            </div>
+            <div id="admin-panel" class="settings-panel" hidden>
+                <h4>Admin update</h4>
+                <p>Enter your admin password to update this text and save changes.</p>
+                <input id="admin-password-input" type="password" placeholder="Admin password" />
+                <textarea id="admin-text-input" rows="10"></textarea>
+                <div class="checkbox-grid">
+                    <label><input type="checkbox" id="admin-opt-preformatted" /> Preformatted text</label>
+                    <label><input type="checkbox" id="admin-opt-clickable" /> Make links clickable</label>
+                    <label><input type="checkbox" id="admin-opt-bbcode" /> Enable BBCode</label>
+                </div>
+                <label class="field-label">Day limit</label>
+                <input id="admin-day-limit" type="number" min="0" placeholder="30" />
+                <button id="save-text-button" class="button primary">Save updates</button>
+                <div id="admin-feedback" class="notice" hidden></div>
+            </div>
+            <div id="page-feedback" class="notice" hidden></div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div>&copy; 2026 DSCLOUD. All rights reserved.</div>
+    </footer>
+    <div class="toast" id="toast" hidden></div>
+    <script src="app.js"></script>
+</body>
+</html>
