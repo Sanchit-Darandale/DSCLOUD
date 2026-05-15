@@ -694,9 +694,6 @@ app.post(
 
                 });
 
-            const uploadBot =
-                getRandomBot();
-
             let telegramMessage;
 
             if (
@@ -706,7 +703,7 @@ app.post(
             ) {
 
                 telegramMessage =
-                    await uploadBot.sendPhoto(
+                    await getRandomBot().sendPhoto(
 
                         process.env.CHANNEL_ID,
 
@@ -731,7 +728,7 @@ app.post(
             } else {
 
                 telegramMessage =
-                    await uploadBot.sendDocument(
+                    await getRandomBot().sendDocument(
 
                         process.env.CHANNEL_ID,
 
@@ -1366,9 +1363,6 @@ app.post(
                     size: response.data.length
                 });
 
-            const uploadBot =
-                getRandomBot();
-
             let telegramMessage;
 
             const extension =
@@ -1388,7 +1382,7 @@ app.post(
             ) {
 
                 telegramMessage =
-                    await uploadBot.sendPhoto(
+                    await getRandomBot().sendPhoto(
                         process.env.CHANNEL_ID,
 
                         buffer,
@@ -1410,7 +1404,7 @@ app.post(
             } else {
 
                 telegramMessage =
-                    await uploadBot.sendDocument(
+                    await getRandomBot().sendDocument(
                         process.env.CHANNEL_ID,
 
                         buffer,
@@ -1631,7 +1625,7 @@ app.get(
             }
 
             const tgFile =
-                await bot.getFile(
+                await getRandomBot().getFile(
                     file.telegramFileId
                 );
 
@@ -1702,7 +1696,7 @@ app.get("/f/:filename", async (req, res) => {
         const file = await File.findOne({ id });
         if (!file) return res.status(404).send("File not found");
 
-        const tgFile = await bot.getFile(file.telegramFileId);
+        const tgFile = await getRandomBot().getFile(file.telegramFileId);
         const fileUrl = `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${tgFile.file_path}`;
         const response = await axios.get(fileUrl, { responseType: "stream" });
 
@@ -1829,7 +1823,7 @@ app.post(
 
             try {
 
-                await bot.deleteMessage(
+                await getRandomBot().deleteMessage(
                     process.env.CHANNEL_ID,
                     file.messageId
                 );
