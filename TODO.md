@@ -9,3 +9,5 @@
   - [x] Ensure injected copy button (`.api-copy-button`) is positioned/stacked correctly on mobile
 
 - [ ] Run quick sanity check by opening: /privacy.html, /terms.html, /api-docs.html, /text.html on mobile viewport widths
+
+- [ ] If mobile API docs still overflows: fix remaining responsive CSS for code/pre/copy button
