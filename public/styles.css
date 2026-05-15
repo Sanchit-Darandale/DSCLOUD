@@ -196,10 +196,17 @@ nav a:hover {
     letter-spacing: 0.25rem;
 }
 
+/* Mobile nav (hamburger) elements are hidden by default on desktop */
 .menu-toggle,
 .nav-overlay {
     display: none;
 }
+
+/* Ensure the injected wrapper doesn't create horizontal overflow */
+.api-reference-shell {
+    overflow-x: hidden;
+}
+
 
 main {
     padding: 2.5rem;
@@ -1424,10 +1431,17 @@ button.button:hover {
 }
 
 @media (max-width: 760px) {
+    /* prevent any horizontal scroll due to code/pre/copy button wrappers */
+    html, body {
+        overflow-x: hidden;
+        width: 100%;
+    }
+
     .topbar {
         padding: 0.85rem 1rem;
         z-index: 40;
     }
+
 
     /* API docs: injected copy button should flow in the normal layout on mobile */
     .api-reference-card {
