@@ -1441,10 +1441,20 @@ button.button:hover {
     /* Prevent fixed/width elements from causing layout overflow */
     .topbar nav,
     .api-reference-shell,
-    main {
+    main,
+    .text-host-shell,
+    .text-hero-panel,
+    .text-workspace,
+    .composer-main,
+    .composer-settings,
+    .text-result-panel,
+    .api-reference-list,
+    .api-reference-card {
         max-width: 100%;
         overflow-x: hidden;
+        width: 100%;
     }
+
 
     .topbar {
         padding: 0.85rem 1rem;
