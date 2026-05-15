@@ -1697,7 +1697,7 @@ app.get("/f/:filename", async (req, res) => {
         if (!file) return res.status(404).send("File not found");
 
         const tgFile = await bot.getFile(file.telegramFileId);
-        const fileUrl = `https://api.telegram.org/file/bot${uploadBotTokens[0]}/${tgFile.file_path}`;}
+        const fileUrl = `https://api.telegram.org/file/bot${uploadBotTokens[0]}/${tgFile.file_path}`;
         const response = await axios.get(fileUrl, { responseType: "stream" });
 
         res.setHeader("Content-Type", file.type);
