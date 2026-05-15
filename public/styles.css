@@ -1429,10 +1429,35 @@ button.button:hover {
         z-index: 40;
     }
 
+    /* API docs: injected copy button should flow in the normal layout on mobile */
+    .api-reference-card {
+        position: relative;
+    }
+
+    .request-code {
+        display: block;
+    }
+
+    .api-copy-button {
+        position: static !important;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        margin-top: 0.75rem;
+        top: auto;
+        right: auto;
+    }
+
+    .code-sample {
+        padding-right: 1rem;
+    }
+
     .brand {
         min-width: 0;
         padding-right: 3.2rem;
     }
+
 
     .brand h1 {
         font-size: 1.05rem;

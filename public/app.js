@@ -97,7 +97,15 @@ let authenticated = false;
 function setupMobileNavigation() {
     const topbar = document.querySelector(".topbar");
     const nav = topbar?.querySelector("nav");
-    if (!topbar || !nav || topbar.querySelector(".menu-toggle")) return;
+    if (!topbar || !nav) return;
+
+    // Prevent duplicates across dynamic navigation / hot reload.
+    // If they exist, remove and recreate deterministically.
+    const existingToggle = topbar.querySelector(".menu-toggle");
+    if (existingToggle) existingToggle.remove();
+
+    const existingOverlay = document.querySelector(".nav-overlay");
+    if (existingOverlay) existingOverlay.remove();
 
     const menuButton = document.createElement("button");
     menuButton.type = "button";
@@ -116,19 +124,40 @@ function setupMobileNavigation() {
         menuButton.setAttribute("aria-expanded", "false");
     }
 
+    function openMenu() {
+        document.body.classList.add("nav-open");
+        menuButton.setAttribute("aria-expanded", "true");
+    }
+
     menuButton.addEventListener("click", () => {
         const isOpen = document.body.classList.toggle("nav-open");
         menuButton.setAttribute("aria-expanded", String(isOpen));
     });
 
     overlay.addEventListener("click", closeMenu);
-    nav.querySelectorAll("a").forEach((link) => {
-        link.addEventListener("click", closeMenu);
+
+    // Close on any nav link click (event delegation avoids missing/extra handlers)
+    nav.addEventListener("click", (e) => {
+        const target = e.target;
+        if (target && target.tagName === "A") {
+            closeMenu();
+        }
     });
 
     topbar.appendChild(menuButton);
     document.body.appendChild(overlay);
+
+    // If user rotates / resizes to desktop, force-close drawer.
+    const forceClose = () => {
+        if (window.innerWidth > 760) closeMenu();
+    };
+    window.addEventListener("resize", forceClose);
+    window.addEventListener("orientationchange", forceClose);
+
+    // Initial state cleanup
+    forceClose();
 }
+
 
 function showToast(message, type = "success") {
     toast.textContent = message;
