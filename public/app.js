@@ -202,7 +202,7 @@ async function fetchStats() {
         const data = await res.json();
         statsUploads.textContent = data.totalUploads || "0";
         statsViews.textContent = data.totalViews || "0";
-        statsBandwidth.textContent = `${Math.round((data.bandwidth || 0) / 1024 / 1024)} MB`;
+        statsBandwidth.textContent = formatSize(data.bandwidth || 0);
     } catch (err) {
         console.warn("Stats fetch failed", err);
     }

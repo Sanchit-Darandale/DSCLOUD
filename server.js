@@ -1700,6 +1700,17 @@ app.get("/f/:filename", async (req, res) => {
         const fileUrl = `https://api.telegram.org/file/bot${uploadBotTokens[0]}/${tgFile.file_path}`;
         const response = await axios.get(fileUrl, { responseType: "stream" });
 
+        const isPreview = req.query.preview !== undefined;
+        if (!isPreview) {
+            file.views = (file.views || 0) + 1;
+            await file.save();
+
+            const stats = await getStats();
+            stats.views = (stats.views || 0) + 1;
+            stats.bandwidth = (stats.bandwidth || 0) + Number(file.size || 0);
+            await stats.save();
+        }
+
         res.setHeader("Content-Type", file.type);
         response.data.pipe(res);
     } catch (err) {

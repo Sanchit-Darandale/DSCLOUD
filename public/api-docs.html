@@ -87,7 +87,7 @@
                     <span class="method get">GET</span>
                     <h3>/f/:filename</h3>
                 </div>
-                <p>Access a file directly with a custom extension (e.g., <code>.png</code>). This is a direct resource link that skips view counting.</p>
+                <p>Access a file directly with a custom extension (e.g., <code>.png</code>). This direct link streams the resource and updates view and bandwidth stats.</p>
                 <pre class="code-sample"><code>curl -O https://dscloud.vercel.app/f/aBcDeFgH.png</code></pre>
                 <div class="response-label">Response:</div>
                 <pre class="code-sample"><code>file get download in current directory. Matches the original file's Content-Type.</code></pre>
