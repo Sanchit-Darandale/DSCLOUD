@@ -901,8 +901,8 @@ function validateAliasValue(value) {
     if (!/^[a-z0-9-_]+$/.test(alias)) {
         return { valid: false, error: "Alias may only contain letters, numbers, hyphens, and underscores." };
     }
-    if (alias.length < 3 || alias.length > 40) {
-        return { valid: false, error: "Alias must be 3-40 characters long." };
+    if (alias.length > 40) {
+        return { valid: false, error: "Alias must be 1-40 characters long." };
     }
     return { valid: true, alias };
 }

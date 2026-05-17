@@ -11,6 +11,13 @@
     box-sizing: border-box;
 }
 
+html,
+body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
 body {
     margin: 0;
     min-height: 100vh;
@@ -1547,13 +1554,16 @@ button.button:hover {
     .topbar nav {
         position: fixed;
         inset: 0 0 0 auto;
-        z-index: 30;
+        z-index: 50;
         display: flex;
         flex-direction: column;
         align-items: stretch;
         justify-content: flex-start;
         width: min(82vw, 320px);
-        padding: 5.75rem 1rem 1rem;
+        max-height: 100vh;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 5.75rem 1rem 1.5rem;
         background: rgba(4, 9, 17, 0.98);
         border-left: 1px solid rgba(255, 255, 255, 0.08);
         box-shadow: -24px 0 70px rgba(0, 0, 0, 0.35);
@@ -1570,6 +1580,13 @@ button.button:hover {
         padding: 0.9rem 1rem;
         border-radius: 14px;
         background: rgba(255, 255, 255, 0.04);
+        word-break: break-word;
+    }
+
+    .api-reference-list,
+    .api-reference-card {
+        width: 100%;
+        max-width: 100%;
     }
 
     .nav-overlay {
