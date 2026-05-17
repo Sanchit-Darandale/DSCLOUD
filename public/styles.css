@@ -1097,6 +1097,9 @@ button.button:hover {
     padding: 1.35rem 1.6rem;
     padding-right: 5rem;
     overflow-x: auto;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     border-radius: 14px;
     background: #050a14;
     color: #eaf4ff;
@@ -1458,8 +1461,16 @@ button.button:hover {
     .api-reference-list,
     .api-reference-card {
         max-width: 100%;
-        overflow-x: hidden;
         width: 100%;
+    }
+
+    .text-workspace,
+    .composer-main,
+    .composer-settings,
+    .text-result-panel,
+    .api-reference-list,
+    .api-reference-card {
+        overflow-x: visible;
     }
 
 
@@ -1491,7 +1502,15 @@ button.button:hover {
     }
 
     .code-sample {
-        padding-right: 1rem;
+        padding: 1rem;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        box-sizing: border-box;
+    }
+
+    .code-sample code {
+        overflow-wrap: anywhere;
     }
 
     .brand {
@@ -1554,16 +1573,19 @@ button.button:hover {
     .topbar nav {
         position: fixed;
         inset: 0 0 0 auto;
+        right: 0;
+        left: auto;
         z-index: 50;
         display: flex;
         flex-direction: column;
         align-items: stretch;
         justify-content: flex-start;
         width: min(82vw, 320px);
+        height: 100vh;
         max-height: 100vh;
         overflow-y: auto;
         overscroll-behavior: contain;
-        padding: 5.75rem 1rem 1.5rem;
+        padding: 5.75rem 0.9rem 1.5rem;
         background: rgba(4, 9, 17, 0.98);
         border-left: 1px solid rgba(255, 255, 255, 0.08);
         box-shadow: -24px 0 70px rgba(0, 0, 0, 0.35);
@@ -1576,6 +1598,7 @@ button.button:hover {
     }
 
     .topbar nav a {
+        display: block;
         width: 100%;
         padding: 0.9rem 1rem;
         border-radius: 14px;
@@ -1587,6 +1610,11 @@ button.button:hover {
     .api-reference-card {
         width: 100%;
         max-width: 100%;
+        min-width: 0;
+    }
+
+    .api-reference-card {
+        overflow: visible;
     }
 
     .nav-overlay {
@@ -1658,6 +1686,14 @@ button.button:hover {
 
     .code-sample {
         padding: 1rem;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        word-break: break-word;
+    }
+
+    .code-sample code {
+        white-space: pre-wrap;
     }
 
     .hero-stats {
