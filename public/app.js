@@ -676,6 +676,10 @@ function renderTextHistory(items = []) {
 function setUploadControls(disabled) {
     if (uploadButton) uploadButton.disabled = disabled;
     if (uploadUrlButton) uploadUrlButton.disabled = disabled;
+    if (hostTextButton) {
+        hostTextButton.disabled = disabled;
+        hostTextButton.classList.toggle("loading", disabled);
+    }
     if (dropZone) {
         const p = dropZone.querySelector("p");
         if (disabled) {
@@ -861,6 +865,8 @@ async function hostText() {
         showToast("Please choose an available alias before hosting.", "error");
         return;
     }
+    setUploadControls(true);
+    setUploadProgress(10, "Preparing text host...");
     try {
         const payload = {
             text,
@@ -884,12 +890,17 @@ async function hostText() {
         if (!data.success) {
             throw new Error(data.error || "Text hosting failed");
         }
+        setUploadProgress(100, "Text hosted successfully");
         renderTextResult(data);
         await loadUserHistory();
         showToast("Text hosted successfully");
         fetchStats();
     } catch (err) {
+        setUploadProgress(0, "Hosting failed");
         showToast(err.message, "error");
+    } finally {
+        setTimeout(resetUploadProgress, 1200);
+        setUploadControls(false);
     }
 }
 
