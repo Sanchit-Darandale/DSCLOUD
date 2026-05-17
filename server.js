@@ -1948,10 +1948,10 @@ app.post(
                     });
                 }
 
-                if (requestedAlias.length < 3 || requestedAlias.length > 40) {
+                if (requestedAlias.length > 40) {
                     return res.status(400).json({
                         success: false,
-                        error: "Alias must be between 3 and 40 characters"
+                        error: "Alias must be between 1 and 40 characters"
                     });
                 }
 
