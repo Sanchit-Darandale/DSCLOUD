@@ -1732,47 +1732,66 @@ app.get("/f/:filename", async (req, res) => {
 app.get(
     "/api/info/:id",
     async (req, res) => {
+        const requestedId = req.params.id;
 
         const file =
             await File.findOne({
-                id:
-                    req.params.id
+                id: requestedId
             });
 
-        if (!file) {
+        if (file) {
+            const type =
+                file.type && file.type.startsWith("text/")
+                    ? "text"
+                    : file.type;
+
+            return res.json({
+                success: true,
+                id: file.id,
+                originalName: file.originalName,
+                size: file.size,
+                type,
+                views: file.views,
+                uploadedAt: file.uploadedAt
+            });
+        }
+
+        const textData =
+            await Text.findOne({
+                $or: [
+                    { id: requestedId },
+                    { alias: requestedId.toLowerCase() }
+                ]
+            });
+
+        if (!textData) {
+            return res.status(404).json({
+                success: false,
+                error: "File not found"
+            });
+        }
+
+        if (
+            textData.expiresAt &&
+            new Date() >
+            new Date(textData.expiresAt)
+        ) {
+            await Text.deleteOne({ alias: textData.alias });
 
             return res.status(404).json({
                 success: false,
-                error:
-                    "File not found"
+                error: "File not found"
             });
-
         }
 
         return res.json({
-
             success: true,
-
-            id:
-                file.id,
-
-            originalName:
-                file.originalName,
-
-            size:
-                file.size,
-
-            type:
-                file.type,
-
-            views:
-                file.views,
-
-            uploadedAt:
-                file.uploadedAt
-
+            id: textData.alias,
+            size: Buffer.byteLength(textData.text || "", "utf8"),
+            type: "text",
+            views: textData.views,
+            uploadedAt: textData.uploadedAt
         });
-
     }
 );
 
