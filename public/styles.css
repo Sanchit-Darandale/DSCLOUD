@@ -642,15 +642,64 @@ button.button:hover {
 }
 
 .footer {
-    padding: 1.25rem 2rem 2rem;
-    color: #8d9bb3;
+    padding: 1.5rem 1.5rem 2rem;
+    color: #9da9c4;
     text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(4, 9, 17, 0.92);
+}
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+.footer-copy {
+    font-size: 0.96rem;
+    color: #c1c9d7;
+    line-height: 1.6;
+}
+.footer-meta {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    color: #9da9c4;
+    font-size: 0.92rem;
+    white-space: nowrap;
+}
+.footer-meta-line,
+.footer-dev-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+}
+.footer-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: #e8efff;
+    font-weight: 600;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+.footer-brand:hover {
+    transform: translateY(-1px);
+    color: #7cc5ff;
+}
+.footer-brand svg {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    fill: currentColor;
+}
+.footer-brand span {
+    letter-spacing: 0.01em;
 }
 
-.text-output {
-    display: grid;
-    gap: 1rem;
-}
 
 .text-controls {
     display: flex;
