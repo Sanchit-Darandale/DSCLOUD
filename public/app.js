@@ -496,6 +496,18 @@ async function deleteTextHistoryItem(item) {
     }
 }
 
+function normalizeHistoryItem(item = {}) {
+    const nested = item.doc && typeof item.doc === "object" ? item.doc : {};
+    const normalized = { ...nested, ...item };
+    delete normalized.doc;
+
+    if (!normalized.resourceUrl && normalized.resourceId) {
+        normalized.resourceUrl = `${window.location.origin}/file/${normalized.resourceId}`;
+    }
+
+    return normalized;
+}
+
 function renderUploadHistory(items = []) {
     if (!uploadHistory || !uploadHistorySection) return;
     uploadHistory.innerHTML = "";
@@ -508,20 +520,20 @@ function renderUploadHistory(items = []) {
         return;
     }
 
-    items.forEach((item) => {
+    items.map(normalizeHistoryItem).forEach((item) => {
         const card = document.createElement("article");
         card.className = "history-card";
         card.tabIndex = 0;
         
         const preview = document.createElement("div");
         preview.className = "history-preview";
-        if ((item.contentType || "").startsWith("image/")) {
+        if (item.resourceUrl && (item.contentType || "").startsWith("image/")) {
             const image = document.createElement("img");
             image.src = `${item.resourceUrl}?preview=true`;
             image.alt = item.originalName || "Media";
             image.loading = "lazy";
             preview.appendChild(image);
-        } else if ((item.contentType || "").startsWith("video/")) {
+        } else if (item.resourceUrl && (item.contentType || "").startsWith("video/")) {
             const video = document.createElement("video");
             video.src = `${item.resourceUrl}?preview=true`;
             video.muted = true;
@@ -560,18 +572,22 @@ function renderUploadHistory(items = []) {
         actions.className = "history-actions";
         
         const copyBtn = createHistoryAction("Copy Link", "button tertiary small", () => {
-            copyTextToClipboard(item.directlink || item.resourceUrl || "");
+            const link = item.directlink || item.resourceUrl;
+            if (link) copyTextToClipboard(link);
         });
 
         const viewBtn = document.createElement("a");
         viewBtn.className = "button secondary small";
         const isMedia = (item.contentType || "").startsWith("image/") || (item.contentType || "").startsWith("video/");
-        if (isMedia) {
+        if (isMedia && (item.downloadlink || item.resourceUrl)) {
             viewBtn.textContent = "Download";
-            viewBtn.href = `${item.resourceUrl}?dl`;
-        } else {
+            viewBtn.href = item.downloadlink || `${item.resourceUrl}?dl`;
+        } else if (item.resourceUrl) {
             viewBtn.textContent = "View";
             viewBtn.href = item.resourceUrl;
+        } else {
+            viewBtn.textContent = "Unavailable";
+            viewBtn.setAttribute("aria-disabled", "true");
         }
         viewBtn.target = "_blank";
         viewBtn.addEventListener("click", (e) => e.stopPropagation());
@@ -604,7 +620,7 @@ function renderTextHistory(items = []) {
         return;
     }
 
-    items.forEach((item) => {
+    items.map(normalizeHistoryItem).forEach((item) => {
         const card = document.createElement("article");
         card.className = "history-card text-card";
         card.tabIndex = 0;
@@ -637,14 +653,19 @@ function renderTextHistory(items = []) {
         actions.className = "history-actions";
 
         const copyBtn = createHistoryAction("Copy Link", "button tertiary small", () => {
-            copyTextToClipboard(item.directlink || item.resourceUrl || "");
+            const link = item.directlink || item.resourceUrl;
+            if (link) copyTextToClipboard(link);
         });
 
         const viewBtn = document.createElement("a");
         viewBtn.className = "button secondary small";
-        viewBtn.href = item.resourceUrl;
+        if (item.resourceUrl) {
+            viewBtn.href = item.resourceUrl;
+        } else {
+            viewBtn.setAttribute("aria-disabled", "true");
+        }
         viewBtn.target = "_blank";
-        viewBtn.textContent = "View";
+        viewBtn.textContent = item.resourceUrl ? "View" : "Unavailable";
         viewBtn.addEventListener("click", (e) => e.stopPropagation());
 
         const deleteBtn = createHistoryAction("Delete", "button danger small", () => {

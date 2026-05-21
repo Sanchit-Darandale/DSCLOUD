@@ -16,6 +16,7 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const app = express();
 
+app.disable("etag");
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
@@ -778,6 +779,7 @@ app.get("/api/history", requireAuth,
     async (req, res) => {
         try {
             const history = await History.find({ownerId: req.user.id}).sort({uploadedAt: -1});
+            const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get("host")}`;
 
             const uploads = history.filter(
                 (item) => item.type === "media"
@@ -786,11 +788,13 @@ app.get("/api/history", requireAuth,
                 const ext = doc.originalName?.includes(".")
                     ? doc.originalName.split(".").pop()
                     : (doc.contentType?.split("/")[1] || "png");
+                const resourceUrl = doc.resourceUrl || `${baseUrl}/file/${doc.resourceId}`;
 
                 return {
-                    doc,
-                    directlink: `${process.env.BASE_URL}/f/${doc.resourceId}.${ext}`,
-                    downloadlink: `${process.env.BASE_URL}/file/${doc.resourceId}?dl`
+                    ...doc,
+                    resourceUrl,
+                    directlink: `${baseUrl}/f/${doc.resourceId}.${ext}`,
+                    downloadlink: `${baseUrl}/file/${doc.resourceId}?dl`
                 };
             });
             const texts = history.filter((item) => item.type === "text");
