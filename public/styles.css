@@ -144,8 +144,7 @@ nav a:hover {
 }
 
 .auth-section-inline {
-    /* Sits in the normal document flow, same position as upload cards */
-}
+    }
 
 .auth-section-inline[hidden] {
     display: none;
@@ -1004,6 +1003,8 @@ button.button:hover {
 
 .split-page-shell {
     max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 2rem;
 }
 
 .page-hero {
@@ -1054,8 +1055,13 @@ button.button:hover {
     background: linear-gradient(135deg, #ff5f6d, #ff9f43);
 }
 
+/* Center the action panel on the delete page specifically */
 .action-panel {
     justify-items: start;
+}
+
+.delete-page .action-panel {
+    justify-items: center;
 }
 
 .api-page {

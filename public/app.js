@@ -88,33 +88,51 @@ const uploadHistoryKey = "dscloudUploadHistory";
 const textHistoryKey = "dscloudTextHistory";
 let selectedUploadFile = null;
 
-// Single conditional render area (upload cards OR login card)
 let authCheckCompleted = false;
 let authenticated = false;
 
+// Debounce helper to prevent multiple clicks
+let uploadInProgress = false;
+let textUploadInProgress = false;
+let urlUploadInProgress = false;
 
+function debounceUpload(fn, progressFlag) {
+    return function(...args) {
+        if (progressFlag === 'media' && uploadInProgress) return;
+        if (progressFlag === 'url' && urlUploadInProgress) return;
+        if (progressFlag === 'text' && textUploadInProgress) return;
+        
+        if (progressFlag === 'media') uploadInProgress = true;
+        else if (progressFlag === 'url') urlUploadInProgress = true;
+        else if (progressFlag === 'text') textUploadInProgress = true;
+        
+        return fn(...args).finally(() => {
+            if (progressFlag === 'media') uploadInProgress = false;
+            else if (progressFlag === 'url') urlUploadInProgress = false;
+            else if (progressFlag === 'text') textUploadInProgress = false;
+        });
+    };
+}
 
 function setupMobileNavigation() {
     const topbar = document.querySelector(".topbar");
     const nav = topbar?.querySelector("nav");
-    if (!topbar || !nav) return;
-
-    // Prevent duplicates across dynamic navigation / hot reload.
-    // If they exist, remove and recreate deterministically.
     const existingToggle = topbar.querySelector(".menu-toggle");
-    if (existingToggle) existingToggle.remove();
-
     const existingOverlay = document.querySelector(".nav-overlay");
+    const menuButton = document.createElement("button");
+    const overlay = document.createElement("button");
+    const isOpen = document.body.classList.toggle("nav-open");
+
+    if (!topbar || !nav) return;
+    if (existingToggle) existingToggle.remove();
     if (existingOverlay) existingOverlay.remove();
 
-    const menuButton = document.createElement("button");
     menuButton.type = "button";
     menuButton.className = "menu-toggle";
     menuButton.setAttribute("aria-label", "Open navigation menu");
     menuButton.setAttribute("aria-expanded", "false");
     menuButton.innerHTML = "<span></span><span></span><span></span>";
-
-    const overlay = document.createElement("button");
+    
     overlay.type = "button";
     overlay.className = "nav-overlay";
     overlay.setAttribute("aria-label", "Close navigation menu");
@@ -130,13 +148,11 @@ function setupMobileNavigation() {
     }
 
     menuButton.addEventListener("click", () => {
-        const isOpen = document.body.classList.toggle("nav-open");
         menuButton.setAttribute("aria-expanded", String(isOpen));
     });
 
     overlay.addEventListener("click", closeMenu);
 
-    // Close on any nav link click (event delegation avoids missing/extra handlers)
     nav.addEventListener("click", (e) => {
         const target = e.target;
         if (target && target.tagName === "A") {
@@ -147,14 +163,11 @@ function setupMobileNavigation() {
     topbar.appendChild(menuButton);
     document.body.appendChild(overlay);
 
-    // If user rotates / resizes to desktop, force-close drawer.
     const forceClose = () => {
         if (window.innerWidth > 760) closeMenu();
     };
     window.addEventListener("resize", forceClose);
     window.addEventListener("orientationchange", forceClose);
-
-    // Initial state cleanup
     forceClose();
 }
 
@@ -213,11 +226,9 @@ function renderMediaResult(result) {
     mediaUrl.textContent = result.url;
     mediaUrl.href = result.url;
     
-    // Direct Link
     mediaDirectUrl.textContent = result.directlink || result.url;
     mediaDirectUrl.href = result.directlink || result.url;
 
-    // Download Link
     if (mediaDownloadUrl) {
         mediaDownloadUrl.textContent = result.downloadlink || (result.url + "?dl");
         mediaDownloadUrl.href = result.downloadlink || (result.url + "?dl");
@@ -251,21 +262,15 @@ function renderAuthLinks() {
 
 async function handleLogout() {
     try {
-        await fetch(`${apiBase}/api/logout`, {
-            method: "POST"
-        });
+        await fetch(`${apiBase}/api/logout`, {method: "POST"});
     } catch (err) {
         console.warn(err);
     }
-
-    // Hard refresh to guarantee both cards swap correctly on all pages.
     window.location.reload();
 }
 
 
 async function loadUserSession() {
-    // Both sections start hidden to prevent flash-of-wrong-content.
-    // Hero/stats/footer are ALWAYS visible (they live outside these sections).
     if (authSection) {
         authSection.hidden = true;
     }
@@ -310,18 +315,13 @@ async function loadUserSession() {
     }
 }
 
-
-
 function setCardFade(element, visible) {
     if (!element) return;
-    // Prevent flicker: use a class if styles exist; fallback to hidden.
     if (visible) {
         element.hidden = false;
         element.style.opacity = "0";
         element.style.transition = "opacity 240ms ease";
-        requestAnimationFrame(() => {
-            element.style.opacity = "1";
-        });
+        requestAnimationFrame(() => {element.style.opacity = "1";});
     } else {
         element.style.opacity = "0";
         element.style.transition = "opacity 240ms ease";
@@ -332,8 +332,6 @@ function setCardFade(element, visible) {
 }
 
 function showAuthSection() {
-    // Show ONLY the login card; hide upload cards.
-    // Hero/stats/footer remain untouched (always visible).
     if (uploadSection) {
         uploadSection.hidden = true;
     }
@@ -348,8 +346,6 @@ function showAuthSection() {
 }
 
 function showUploadSection() {
-    // Show upload cards; hide login card.
-    // Hero/stats/footer remain untouched (always visible).
     if (authSection) {
         authSection.hidden = true;
         authSection.style.opacity = "";
@@ -366,7 +362,6 @@ function showUploadSection() {
 
 
 async function loadUserHistory() {
-    // Always attempt to load history so the user sees media + text from their account.
     if (!currentUser) {
         renderUploadHistory([]);
         renderTextHistory([]);
@@ -383,9 +378,6 @@ async function loadUserHistory() {
             throw new Error(data.error || "Unable to load history");
         }
 
-        // Server returns:
-        // - uploads: media items (photo/video/document)
-        // - texts: text items (aliases)
         currentHistory = {
             uploads: data.uploads || [],
             texts: data.texts || []
@@ -394,7 +386,6 @@ async function loadUserHistory() {
         renderUploadHistory(currentHistory.uploads);
         renderTextHistory(currentHistory.texts);
 
-        // Always show history sections if authenticated, regardless of count
         if (uploadHistorySection) uploadHistorySection.hidden = false;
         if (textHistorySection) textHistorySection.hidden = false;
     } catch (err) {
@@ -471,7 +462,7 @@ async function deleteHistoryItem(item) {
             throw new Error(data.error || "Delete failed");
         }
         showToast("Media deleted successfully");
-        urlInput.value = ""; // Clear input after successful action
+        urlInput.value = ""; 
         await loadUserHistory();
         fetchStats();
     } catch (err) {
@@ -505,7 +496,6 @@ async function deleteTextHistoryItem(item) {
 
 function renderUploadHistory(items = []) {
     if (!uploadHistory || !uploadHistorySection) return;
-
     uploadHistory.innerHTML = "";
 
     if (items.length === 0) {
@@ -521,7 +511,6 @@ function renderUploadHistory(items = []) {
         card.className = "history-card";
         card.tabIndex = 0;
         
-        // Preview section
         const preview = document.createElement("div");
         preview.className = "history-preview";
         if ((item.contentType || "").startsWith("image/")) {
@@ -547,7 +536,6 @@ function renderUploadHistory(items = []) {
             preview.textContent = "Media";
         }
 
-        // Details section
         const info = document.createElement("div");
         info.className = "history-info";
 
@@ -566,7 +554,6 @@ function renderUploadHistory(items = []) {
 
         info.append(title, meta);
 
-        // Actions section
         const actions = document.createElement("div");
         actions.className = "history-actions";
         
@@ -690,6 +677,19 @@ function setUploadControls(disabled) {
             if (p) p.textContent = "Drop files here or click to browse";
         }
     }
+    
+    // Safety timeout to reset controls in case of error
+    if (disabled) {
+        setTimeout(() => {
+            if (uploadInProgress || urlUploadInProgress || textUploadInProgress) {
+                console.warn("Upload timeout - resetting controls");
+                uploadInProgress = false;
+                urlUploadInProgress = false;
+                textUploadInProgress = false;
+                setUploadControls(false);
+            }
+        }, 120000); // 2 minute timeout
+    }
 }
 
 function setUploadProgress(percent, label) {
@@ -778,6 +778,11 @@ async function uploadFile(file) {
 
     setUploadProgress(100, "Upload complete");
     renderMediaResult(data);
+    
+    // Clear form inputs
+    if (fileInput) fileInput.value = "";
+    selectedUploadFile = null;
+    
     await loadUserHistory();
     showToast("Media uploaded successfully");
     fetchStats();
@@ -892,6 +897,17 @@ async function hostText() {
         }
         setUploadProgress(100, "Text hosted successfully");
         renderTextResult(data);
+        
+        // Clear form inputs after successful upload
+        if (textInput) textInput.value = "";
+        if (customAlias) customAlias.value = "";
+        if (adminPassword) adminPassword.value = "";
+        if (viewPassword) viewPassword.value = "";
+        if (dayLimit) dayLimit.value = "";
+        if (optPreformatted) optPreformatted.checked = false;
+        if (optClickable) optClickable.checked = false;
+        if (optBbcode) optBbcode.checked = false;
+        
         await loadUserHistory();
         showToast("Text hosted successfully");
         fetchStats();
@@ -1154,19 +1170,20 @@ if (fileInput) {
 }
 
 if (uploadButton) {
-    uploadButton.addEventListener("click", () => {
+    uploadButton.addEventListener("click", debounceUpload(() => {
         const file = selectedUploadFile || fileInput.files[0];
         if (file) {
             setUploadProgress(0, "Preparing download...");
-            uploadFile(file);
+            return uploadFile(file);
         } else {
             showToast("Choose a file to upload", "error");
+            return Promise.resolve();
         }
-    });
+    }, 'media'));
 }
 
 if (uploadUrlButton) {
-    uploadUrlButton.addEventListener("click", uploadUrl);
+    uploadUrlButton.addEventListener("click", debounceUpload(uploadUrl, 'url'));
 }
 
 if (copyMediaUrl) {
@@ -1186,7 +1203,7 @@ if (deleteMediaButton) {
 }
 
 if (hostTextButton) {
-    hostTextButton.addEventListener("click", hostText);
+    hostTextButton.addEventListener("click", debounceUpload(hostText, 'text'));
 }
 
 if (checkAliasButton) {

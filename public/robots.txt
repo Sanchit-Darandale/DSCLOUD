@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dscloud.vercel.app/sitemap.xml

@@ -25,16 +25,13 @@ app.set("trust proxy", 1);
 app.set('url encoding limit', '50mb');
 
 app.use((req, res, next) => {
-
     console.log(
         `[${new Date().toISOString()}]`,
         req.ip,
         req.method,
         req.originalUrl
     );
-
     next();
-
 });
 
 mongoose.connect(process.env.MONGO_URI);
@@ -42,11 +39,7 @@ mongoose.connect(process.env.MONGO_URI);
 mongoose.connection.once(
     "open",
     () => {
-
-        console.log(
-            "MongoDB connected"
-        );
-
+        console.log("MongoDB connected");
     }
 );
 
@@ -55,9 +48,7 @@ const uploadBotTokens =
         .split(/[,;\s]+/)
         .filter(Boolean);
 
-const bot =
-    new TelegramBot(
-        uploadBotTokens[0],
+const bot = new TelegramBot(uploadBotTokens[0],
         {
             polling: false
         }
@@ -67,9 +58,7 @@ let lastUploadBotToken = null;
 
 function getRandomBot() {
     if (!uploadBotTokens.length) {
-        throw new Error(
-            "No Telegram bot tokens configured"
-        );
+        throw new Error("No Telegram bot tokens configured");
     }
 
     const availableTokens =
@@ -78,10 +67,7 @@ function getRandomBot() {
                 token !== lastUploadBotToken
         );
 
-    const tokensToChooseFrom =
-        availableTokens.length
-            ? availableTokens
-            : uploadBotTokens;
+    const tokensToChooseFrom = availableTokens.length ? availableTokens : uploadBotTokens;
 
     const selectedToken =
         tokensToChooseFrom[
@@ -102,16 +88,13 @@ function getRandomBot() {
 }
 
 function formatDate() {
-
     return new Date()
         .toISOString()
         .slice(0, 19)
         .replace("T", " ");
-
 }
 
 function generateDeleteKey() {
-
     return crypto
         .randomBytes(32)
         .toString("hex");
@@ -119,7 +102,6 @@ function generateDeleteKey() {
 }
 
 function hashPassword(value) {
-
     if (!value) {
         return null;
     }
@@ -128,11 +110,9 @@ function hashPassword(value) {
         .createHash("sha256")
         .update(value)
         .digest("hex");
-
 }
 
 function formatFileSize(bytes) {
-
     if (!bytes) {
         return "0 B";
     }
@@ -144,9 +124,7 @@ function formatFileSize(bytes) {
         "GB"
     ];
 
-    let value =
-        Number(bytes);
-
+    let value = Number(bytes);
     let unitIndex = 0;
 
     while (
@@ -156,16 +134,12 @@ function formatFileSize(bytes) {
 
         value /= 1024;
         unitIndex += 1;
-
     }
 
     return `${value.toFixed(1)} ${units[unitIndex]}`;
-
 }
 
-const authSecret =
-    process.env.AUTH_SECRET ||
-    "default-auth-secret";
+const authSecret = process.env.AUTH_SECRET || "default-auth-secret";
 
 function signToken(user) {
     return jwt.sign(
@@ -359,22 +333,13 @@ function sendVerificationEmail(email, code, ip = 'unknown') {
 }
 
 function escapeTelegramHtml(value) {
-
     return String(value)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
-
 }
 
-function buildMediaCaption({
-    id,
-    url,
-    deleteKey,
-    type,
-    size
-}) {
-
+function buildMediaCaption({id, url, deleteKey, type, size}) {
     return [
         `<b>🆔 𝗜𝗗:</b> <code>${escapeTelegramHtml(id)}</code>`,
         `<b>🗃️ 𝗦𝗶𝘇𝗲:</b> <code>${escapeTelegramHtml(formatFileSize(size))}</code>`,
@@ -387,77 +352,43 @@ function buildMediaCaption({
 
 const fileSchema =
     new mongoose.Schema({
-
         id: String,
-
         deleteKey: String,
-
         originalName: String,
-
         size: Number,
-
         type: String,
-
         views: Number,
-
         uploadedAt: String,
-
         telegramFileId: String,
-
         messageId: Number
-
     });
 
 const textSchema =
     new mongoose.Schema({
-
         id: String,
-
         alias: String,
-
         text: String,
-
         deleteKey: String,
-
         adminPasswordHash: String,
-
         viewPasswordHash: String,
-
         expiresAt: String,
-
         options: Object,
-
         views: Number,
-
         uploadedAt: String
-
     });
 
 const statsSchema =
     new mongoose.Schema({
-
         uploads: Number,
-
         views: Number,
-
         bandwidth: Number
-
     });
 
-const File =
-    mongoose.model(
-        "File",
-        fileSchema
-    );
+const File = mongoose.model("File", fileSchema);
 
-const Text =
-    mongoose.model(
-        "Text",
-        textSchema
-    );
+const Text = mongoose.model("Text", textSchema);
 
-const User =
-    mongoose.model(
+const User = mongoose.model(
         "User",
         new mongoose.Schema({
             id: String,
@@ -491,11 +422,7 @@ const historySchema =
         snippet: String
     });
 
-const History =
-    mongoose.model(
-        "History",
-        historySchema
-    );
+const History = mongoose.model("History", historySchema);
 
 const otpSchema =
     new mongoose.Schema({
@@ -506,438 +433,197 @@ const otpSchema =
         createdAt: String
     });
 
-const OTP =
-    mongoose.model(
-        "OTP",
-        otpSchema
-    );
+const OTP = mongoose.model("OTP", otpSchema);
 
-const Stats =
-    mongoose.model(
-        "Stats",
-        statsSchema
-    );
+const Stats = mongoose.model("Stats", statsSchema);
 
 async function getStats() {
-
-    let stats =
-        await Stats.findOne();
-
+    let stats = await Stats.findOne();
     if (!stats) {
-
-        stats =
-            await Stats.create({
-                uploads: 0,
-                views: 0,
-                bandwidth: 0
-            });
-
+        stats = await Stats.create({
+                    uploads: 0,
+                    views: 0,
+                    bandwidth: 0
+                });
     }
-
     return stats;
-
 }
 
-const mediaUploadLimiter =
-    rateLimit({
-
-        windowMs:
-            60 * 60 * 1000,
-
+const mediaUploadLimiter = rateLimit({
+        windowMs: 60 * 60 * 1000,
         max: 50,
-
         message: {
             success: false,
-            error:
-                "Media upload limit exceeded (50/hour)"
+            error: "Media upload limit exceeded (50/hour)"
         },
-
         standardHeaders: true,
-
         legacyHeaders: false
-
     });
 
-const textUploadLimiter =
-    rateLimit({
-
-        windowMs:
-            60 * 60 * 1000,
-
+const textUploadLimiter = rateLimit({
+        windowMs: 60 * 60 * 1000,
         max: 100,
-
         message: {
             success: false,
-            error:
-                "Text upload limit exceeded (100/hour)"
+            error: "Text upload limit exceeded (100/hour)"
         },
-
         standardHeaders: true,
-
         legacyHeaders: false
-
     });
 
-const otpLimiter =
-    rateLimit({
-
-        windowMs:
-            15 * 60 * 1000, // 15 minutes
-
+const otpLimiter = rateLimit({
+        windowMs: 15 * 60 * 1000, 
         max: 5,
-
         message: {
             success: false,
-            error:
-                "Too many OTP requests. Try again later."
+            error: "Too many OTP requests. Try again later."
         },
-
         standardHeaders: true,
-
         legacyHeaders: false
-
     });
 
 const upload = multer({
-
-    storage:
-        multer.memoryStorage(),
-
+    storage: multer.memoryStorage(),
     limits: {
-        fileSize:
-            Number(
-                process.env.MAX_FILE_SIZE
-            ) || 20971520
+        fileSize: Number(process.env.MAX_FILE_SIZE) || 20971520
     }
-
 });
 
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Upload File
-|--------------------------------------------------------------------------
-*/
-
-app.post(
-    "/api/upload",
-    mediaUploadLimiter,
-    upload.single("file"),
+app.post("/api/upload", mediaUploadLimiter, upload.single("file"),
     async (req, res) => {
-
         try {
             req.user = getCurrentUser(req);
-
             if (!req.file) {
-
                 return res.status(400).json({
                     success: false,
-                    error:
-                        "No file uploaded"
+                    error: "No file uploaded"
                 });
-
             }
 
-            const allowed = [
+            const allowed = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/avif", "video/mp4", "video/webm"];
 
-                "image/jpeg",
-                "image/png",
-                "image/gif",
-                "image/webp",
-                "image/avif",
-                "video/mp4",
-                "video/webm"
-
-            ];
-
-            if (
-                !allowed.includes(
-                    req.file.mimetype
-                )
-            ) {
-
+            if (!allowed.includes(req.file.mimetype)) {
                 return res.status(400).json({
                     success: false,
-                    error:
-                        "Unsupported file type"
+                    error: "Unsupported file type"
                 });
-
             }
 
-            const id =
-                nanoid(8);
-
-            const deleteKey =
-                generateDeleteKey();
-
-            const mediaUrl =
-                `${process.env.BASE_URL}/file/${id}`;
-
-            const caption =
-                buildMediaCaption({
-
-                    id,
-
-                    url:
-                        mediaUrl,
-
-                    deleteKey,
-
-                    type:
-                        req.file.mimetype,
-
-                    size:
-                        req.file.size
-
-                });
-
+            const id = nanoid(8);
+            const deleteKey = generateDeleteKey();
+            const mediaUrl = `${process.env.BASE_URL}/file/${id}`;
+            const caption = buildMediaCaption({id, url: mediaUrl, deleteKey, type: req.file.mimetype, size: req.file.size});
             let telegramMessage;
 
-            if (
-                req.file.mimetype.startsWith(
-                    "image/"
-                )
-            ) {
-
-                telegramMessage =
-                    await getRandomBot().sendPhoto(
-
+            if (req.file.mimetype.startsWith("image/")) {
+                telegramMessage = await getRandomBot().sendPhoto(
                         process.env.CHANNEL_ID,
-
                         req.file.buffer,
-
                         {
                             caption,
-                            parse_mode:
-                                "HTML"
+                            parse_mode: "HTML"
                         },
-
                         {
-                            filename:
-                                req.file.originalname,
-
-                            contentType:
-                                req.file.mimetype
+                            filename: req.file.originalname,
+                            contentType: req.file.mimetype
                         }
-
                     );
-
             } else {
-
-                telegramMessage =
-                    await getRandomBot().sendDocument(
-
+                telegramMessage = await getRandomBot().sendDocument(
                         process.env.CHANNEL_ID,
-
                         req.file.buffer,
-
                         {
                             caption,
-                            parse_mode:
-                                "HTML"
+                            parse_mode: "HTML"
                         },
-
                         {
-                            filename:
-                                req.file.originalname,
-
-                            contentType:
-                                req.file.mimetype
+                            filename: req.file.originalname,
+                            contentType: req.file.mimetype
                         }
-
                     );
-
             }
 
-            console.log(
-                telegramMessage
-            );
-
+            console.log(telegramMessage);
             let fileData;
 
-            if (
-                telegramMessage.photo &&
-                telegramMessage.photo.length
-            ) {
+            if (telegramMessage.photo && telegramMessage.photo.length) {
+                fileData = telegramMessage.photo[telegramMessage.photo.length - 1];
 
-                fileData =
-                    telegramMessage.photo[
-                        telegramMessage.photo.length - 1
-                    ];
+            } else if (telegramMessage.video) {
+                fileData = telegramMessage.video;
 
-            } else if (
-                telegramMessage.video
-            ) {
-
-                fileData =
-                    telegramMessage.video;
-
-            } else if (
-                telegramMessage.document
-            ) {
-
-                fileData =
-                    telegramMessage.document;
-
+            } else if (telegramMessage.document) {
+                fileData = telegramMessage.document;
+            
             } else {
-
-                console.log(
-                    telegramMessage
-                );
-
+                console.log(telegramMessage);
                 return res.status(500).json({
-
                     success: false,
-
-                    error:
-                        "Telegram upload failed"
-
+                    error: "Telegram upload failed"
                 });
-
             }
 
             const metadata = {
-
                 id,
-
                 deleteKey,
-
-                originalName:
-                    req.file.originalname,
-
-                size:
-                    req.file.size,
-
-                type:
-                    req.file.mimetype,
-
+                originalName: req.file.originalname,
+                size: req.file.size,
+                type: req.file.mimetype,
                 views: 0,
-
-                uploadedAt:
-                    formatDate(),
-
-                telegramFileId:
-                    fileData.file_id,
-
-                messageId:
-                    telegramMessage.message_id
-
+                uploadedAt: formatDate(),
+                telegramFileId: fileData.file_id,
+                messageId: telegramMessage.message_id
             };
-
-            await File.create(
-                metadata
-            );
+            await File.create(metadata);
 
             if (req.user) {
-
                 await History.create({
-
-                    id:
-                        nanoid(12),
-
-                    ownerId:
-                        req.user.id,
-
-                    ownerEmail:
-                        req.user.email,
-
-                    type:
-                        "media",
-
-                    resourceId:
-                        id,
-
-                    resourceUrl:
-                        mediaUrl,
-
-                    originalName:
-                        metadata.originalName,
-
-                    contentType:
-                        metadata.type,
-
-                    size:
-                        metadata.size,
-
+                    id: nanoid(12),
+                    ownerId: req.user.id,
+                    ownerEmail: req.user.email,
+                    type: "media",
+                    resourceId: id,
+                    resourceUrl: mediaUrl,
+                    originalName: metadata.originalName,
+                    contentType: metadata.type,
+                    size: metadata.size,
                     deleteKey,
-
-                    uploadedAt:
-                        metadata.uploadedAt
-
+                    uploadedAt: metadata.uploadedAt
                 });
-
             }
 
-            const stats =
-                await getStats();
-
+            const stats = await getStats();
             stats.uploads += 1;
-
             await stats.save();
-
-            const ext = req.file.originalname?.includes('.')
-                ? req.file.originalname.split('.').pop()
-                : (req.file.mimetype?.split('/')[1] || 'png');
+            const ext = req.file.originalname?.includes('.') ? req.file.originalname.split('.').pop() : (req.file.mimetype?.split('/')[1] || 'png');
             const directLink = `${process.env.BASE_URL}/f/${id}.${ext}`;
             const downloadLink = `${process.env.BASE_URL}/file/${id}?dl`;
 
             return res.json({
-
                 success: true,
-
                 id,
-
-                url:
-                    mediaUrl,
-
-                directlink:
-                    directLink,
-
-                downloadlink:
-                    downloadLink,
-
+                url: mediaUrl,
+                directlink: directLink,
+                downloadlink: downloadLink,
                 deleteKey,
-
-                originalName:
-                    req.file.originalname,
-
-                size:
-                    req.file.size,
-
-                type:
-                    req.file.mimetype,
-
+                originalName: req.file.originalname,
+                size: req.file.size,
+                type: req.file.mimetype,
                 views: 0,
-
-                uploadedAt:
-                    metadata.uploadedAt
-
+                uploadedAt: metadata.uploadedAt
             });
 
         } catch (err) {
-
             console.error(err);
-
             return res.status(500).json({
-
                 success: false,
-
-                error:
-                    err.message
-
+                error: err.message
             });
-
         }
-
     }
 );
 
-app.post(
-    "/api/auth/send-code",
-    otpLimiter,
+app.post("/api/auth/send-code", otpLimiter,
     async (req, res) => {
         try {
             const { email } = req.body;
@@ -956,12 +642,8 @@ app.post(
                 });
             }
 
-            // Clean up expired OTPs
-            await OTP.deleteMany({
-                expiresAt: { $lt: new Date().toISOString() }
-            });
+            await OTP.deleteMany({expiresAt: { $lt: new Date().toISOString()}});
 
-            // Check for existing valid OTP
             const existingOTP = await OTP.findOne({
                 email: normalizedEmail,
                 expiresAt: { $gt: new Date().toISOString() }
@@ -991,6 +673,7 @@ app.post(
                 success: true,
                 message: "Verification code sent to your email"
             });
+
         } catch (err) {
             console.error(err);
             return res.status(500).json({
@@ -1001,8 +684,7 @@ app.post(
     }
 );
 
-app.post(
-    "/api/auth/verify-code",
+app.post("/api/auth/verify-code",
     async (req, res) => {
         try {
             const { email, code } = req.body;
@@ -1014,7 +696,6 @@ app.post(
             }
 
             const normalizedEmail = String(email).trim().toLowerCase();
-
             const otp = await OTP.findOne({
                 email: normalizedEmail,
                 code: String(code).trim(),
@@ -1028,10 +709,8 @@ app.post(
                 });
             }
 
-            // Clean up used OTP
             await OTP.deleteOne({ _id: otp._id });
 
-            // Find or create user
             let user = await User.findOne({ email: normalizedEmail });
             if (!user) {
                 user = await User.create({
@@ -1048,6 +727,7 @@ app.post(
                 success: true,
                 email: user.email
             });
+
         } catch (err) {
             console.error(err);
             return res.status(500).json({
@@ -1058,8 +738,7 @@ app.post(
     }
 );
 
-app.post(
-    "/api/logout",
+app.post("/api/logout",
     (req, res) => {
         clearAuthCookie(res);
         return res.json({
@@ -1068,16 +747,17 @@ app.post(
     }
 );
 
-app.get(
-    "/api/me",
+app.get("/api/me",
     (req, res) => {
         const user = getCurrentUser(req);
+        
         if (!user) {
             return res.status(401).json({
                 success: false,
                 error: "Not authenticated"
             });
         }
+
         return res.json({
             success: true,
             email: user.email,
@@ -1086,17 +766,10 @@ app.get(
     }
 );
 
-app.get(
-    "/api/history",
-    requireAuth,
+app.get("/api/history", requireAuth,
     async (req, res) => {
         try {
-            const history =
-                await History.find({
-                    ownerId: req.user.id
-                }).sort({
-                    uploadedAt: -1
-                });
+            const history = await History.find({ownerId: req.user.id}).sort({uploadedAt: -1});
 
             const uploads = history.filter(
                 (item) => item.type === "media"
@@ -1107,20 +780,19 @@ app.get(
                     : (doc.contentType?.split("/")[1] || "png");
 
                 return {
-                    ...doc,
+                    doc,
                     directlink: `${process.env.BASE_URL}/f/${doc.resourceId}.${ext}`,
                     downloadlink: `${process.env.BASE_URL}/file/${doc.resourceId}?dl`
                 };
             });
-            const texts = history.filter(
-                (item) => item.type === "text"
-            );
+            const texts = history.filter((item) => item.type === "text");
 
             return res.json({
                 success: true,
                 uploads,
                 texts
             });
+            
         } catch (err) {
             console.error(err);
             return res.status(500).json({
@@ -1131,24 +803,19 @@ app.get(
     }
 );
 
-app.post(
-    "/api/history/clear",
-    requireAuth,
+app.post("/api/history/clear", requireAuth,
     async (req, res) => {
         try {
             const { type } = req.body || {};
-            const query = {
-                ownerId: req.user.id
-            };
+            const query = {ownerId: req.user.id};
             if (type === "media") {
                 query.type = "media";
             } else if (type === "text") {
                 query.type = "text";
             }
             await History.deleteMany(query);
-            return res.json({
-                success: true
-            });
+            return res.json({success: true});
+
         } catch (err) {
             console.error(err);
             return res.status(500).json({
@@ -1159,17 +826,12 @@ app.post(
     }
 );
 
-app.get(
-    "/auth/google",
+app.get("/auth/google",
     (req, res) => {
-        const clientId =
-            process.env.GOOGLE_CLIENT_ID;
-        const redirectUri =
-            `${process.env.BASE_URL || "http://localhost:3000"}/auth/google/callback`;
+        const clientId = process.env.GOOGLE_CLIENT_ID;
+        const redirectUri =`${process.env.BASE_URL || "http://localhost:3000"}/auth/google/callback`;
         if (!clientId) {
-            return res.status(500).send(
-                "Google OAuth is not configured"
-            );
+            return res.status(500).send("Google OAuth is not configured");
         }
         const state = nanoid(16);
         res.cookie("oauth_state", state, {
@@ -1190,69 +852,52 @@ app.get(
     }
 );
 
-app.get(
-    "/auth/google/callback",
+app.get("/auth/google/callback",
     async (req, res) => {
         try {
             const { code, state } = req.query;
+            
             if (!code || !state) {
-                return res.status(400).send(
-                    "Google OAuth callback missing code or state"
-                );
+                return res.status(400).send("Google OAuth callback missing code or state");
             }
+
             if (state !== req.cookies.oauth_state) {
-                return res.status(403).send(
-                    "Invalid OAuth state"
-                );
+                return res.status(403).send("Invalid OAuth state");
             }
-            const tokenResponse =
-                await axios.post(
-                    "https://oauth2.googleapis.com/token",
+
+            const tokenResponse = await axios.post("https://oauth2.googleapis.com/token",
                     new URLSearchParams({
                         code: String(code),
-                        client_id:
-                            process.env.GOOGLE_CLIENT_ID,
-                        client_secret:
-                            process.env.GOOGLE_CLIENT_SECRET,
-                        redirect_uri:
-                            `${process.env.BASE_URL || "http://localhost:3000"}/auth/google/callback`,
+                        client_id: process.env.GOOGLE_CLIENT_ID,
+                        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+                        redirect_uri: `${process.env.BASE_URL || "http://localhost:3000"}/auth/google/callback`,
                         grant_type: "authorization_code"
                     }).toString(),
                     {
                         headers: {
-                            "Content-Type":
-                                "application/x-www-form-urlencoded"
+                            "Content-Type": "application/x-www-form-urlencoded"
                         }
                     }
                 );
-            const accessToken =
-                tokenResponse.data.access_token;
-            const userInfoResponse =
-                await axios.get(
-                    "https://www.googleapis.com/oauth2/v3/userinfo",
+
+            const accessToken = tokenResponse.data.access_token;
+            const userInfoResponse = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo",
                     {
-                        headers: {
-                            Authorization:
-                                `Bearer ${accessToken}`
-                        }
+                        headers: { Authorization: `Bearer ${accessToken}`}
                     }
                 );
-            const googleUser =
-                userInfoResponse.data;
-            const normalizedEmail =
-                String(googleUser.email || "").toLowerCase();
+            const googleUser = userInfoResponse.data;
+            const normalizedEmail = String(googleUser.email || "").toLowerCase();
             if (!normalizedEmail) {
-                return res.status(400).send(
-                    "Google account email not available"
-                );
+                return res.status(400).send("Google account email not available");
             }
-            let user =
-                await User.findOne({
+            let user = await User.findOne({
                     $or: [
                         { email: normalizedEmail },
                         { googleId: googleUser.sub }
                     ]
                 });
+
             if (!user) {
                 user = await User.create({
                     id: nanoid(8),
@@ -1260,384 +905,189 @@ app.get(
                     googleId: googleUser.sub,
                     createdAt: formatDate()
                 });
+
             } else if (!user.googleId) {
                 user.googleId = googleUser.sub;
                 await user.save();
             }
+
             const token = signToken(user);
             setAuthCookie(res, token);
             res.clearCookie("oauth_state");
             return res.redirect(process.env.BASE_URL || "/");
+
         } catch (err) {
             console.error(err);
-            return res.status(500).send(
-                "Google OAuth failed"
-            );
+            return res.status(500).send("Google OAuth failed");
         }
     }
 );
 
-
-/*
-|--------------------------------------------------------------------------
-| Upload File From URL
-|--------------------------------------------------------------------------
-*/
-
-app.post(
-    "/api/upload-url",
-    mediaUploadLimiter,
+app.post("/api/upload-url", mediaUploadLimiter,
     async (req, res) => {
-
         try {
             req.user = getCurrentUser(req);
-
-            const { url } =
-                req.body;
+            const { url } = req.body;
 
             if (!url) {
-
                 return res.status(400).json({
                     success: false,
-                    error:
-                        "URL required"
+                    error: "URL required"
                 });
-
             }
 
-            const response =
-                await axios.get(
-                    url,
+            const response = await axios.get(url,
                     {
-                        responseType:
-                            "arraybuffer"
+                        responseType: "arraybuffer"
                     }
                 );
 
-            const contentType =
-                response.headers[
-                    "content-type"
-                ];
+            const contentType = response.headers["content-type"];
 
-            const allowed = [
-
-                "image/jpeg",
-                "image/png",
-                "image/gif",
-                "image/webp",
-                "image/avif",
-                "video/mp4",
-                "video/webm"
-
-            ];
+            const allowed = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/avif", "video/mp4", "video/webm"];
 
             if (
-                !allowed.includes(
-                    contentType
-                )
+                !allowed.includes(contentType)
             ) {
-
                 return res.status(400).json({
                     success: false,
-                    error:
-                        "Unsupported remote file type"
+                    error: "Unsupported remote file type"
                 });
-
             }
 
-            const id =
-                nanoid(8);
-
-            const deleteKey =
-                generateDeleteKey();
-
-            const mediaUrl =
-                `${process.env.BASE_URL}/file/${id}`;
-
-            const caption =
-                buildMediaCaption({
-                    id,
-                    url: mediaUrl,
-                    deleteKey,
-                    type: contentType,
-                    size: response.data.length
-                });
-
+            const id = nanoid(8);
+            const deleteKey = generateDeleteKey();
+            const mediaUrl = `${process.env.BASE_URL}/file/${id}`;
+            const caption = buildMediaCaption({id, url: mediaUrl, deleteKey, type: contentType, size: response.data.length});
+            const extension = mime.extension(contentType) || "bin";
+            const buffer = Buffer.from(response.data);
             let telegramMessage;
-
-            const extension =
-                mime.extension(
-                    contentType
-                ) || "bin";
-
-            const buffer =
-                Buffer.from(
-                    response.data
-                );
-
-            if (
-                contentType.startsWith(
-                    "image/"
-                )
-            ) {
-
-                telegramMessage =
-                    await getRandomBot().sendPhoto(
+            let fileData;
+            
+            if (contentType.startsWith("image/")) {
+                telegramMessage = await getRandomBot().sendPhoto(
                         process.env.CHANNEL_ID,
-
                         buffer,
-
                         {
                             caption,
                             parse_mode: "HTML"
                         },
 
                         {
-                            filename:
-                                `remote.${extension}`,
-
-                            contentType:
-                                contentType
+                            filename: `remote.${extension}`,
+                            contentType: contentType
                         }
                     );
 
             } else {
-
-                telegramMessage =
-                    await getRandomBot().sendDocument(
+                telegramMessage = await getRandomBot().sendDocument(
                         process.env.CHANNEL_ID,
-
                         buffer,
-
                         {
                             caption,
                             parse_mode: "HTML"
                         },
 
                         {
-                            filename:
-                                `remote.${extension}`,
-
-                            contentType:
-                                contentType
+                            filename: `remote.${extension}`,
+                            contentType: contentType
                         }
                     );
-
             }
 
-            let fileData;
+            if (telegramMessage.photo && telegramMessage.photo.length) {
+                fileData = telegramMessage.photo[telegramMessage.photo.length - 1];
 
-            if (
-                telegramMessage.photo &&
-                telegramMessage.photo.length
-            ) {
+            } else if (telegramMessage.video) {
+                fileData = telegramMessage.video;
 
-                fileData =
-                    telegramMessage.photo[
-                        telegramMessage.photo.length - 1
-                    ];
-
-            } else if (
-                telegramMessage.video
-            ) {
-
-                fileData =
-                    telegramMessage.video;
-
-            } else if (
-                telegramMessage.document
-            ) {
-
-                fileData =
-                    telegramMessage.document;
-
+            } else if (telegramMessage.document) {
+                fileData = telegramMessage.document;
             } else {
-
-                console.log(
-                    telegramMessage
-                );
-
+                console.log(telegramMessage);
                 return res.status(500).json({
                     success: false,
-                    error:
-                        "Telegram upload failed"
+                    error: "Telegram upload failed"
                 });
-
             }
 
             const metadata = {
-
                 id,
-
                 deleteKey,
-
-                originalName:
-                    `remote.${extension}`,
-
-                size:
-                    response.data.length,
-
-                type:
-                    contentType,
-
+                originalName: `remote.${extension}`,
+                size: response.data.length,
+                type: contentType,
                 views: 0,
-
-                uploadedAt:
-                    formatDate(),
-
-                telegramFileId:
-                    fileData.file_id,
-
-                messageId:
-                    telegramMessage.message_id
-
+                uploadedAt: formatDate(),
+                telegramFileId: fileData.file_id,
+                messageId: telegramMessage.message_id
             };
 
-            await File.create(
-                metadata
-            );
+            await File.create(metadata);
 
             if (req.user) {
-
                 await History.create({
-
-                    id:
-                        nanoid(12),
-
-                    ownerId:
-                        req.user.id,
-
-                    ownerEmail:
-                        req.user.email,
-
-                    type:
-                        "media",
-
-                    resourceId:
-                        id,
-
-                    resourceUrl:
-                        mediaUrl,
-
-                    originalName:
-                        metadata.originalName,
-
-                    contentType:
-                        metadata.type,
-
-                    size:
-                        metadata.size,
-
+                    id: nanoid(12),
+                    ownerId: req.user.id,
+                    ownerEmail: req.user.email,
+                    type: "media",
+                    resourceId: id,
+                    resourceUrl: mediaUrl,
+                    originalName: metadata.originalName,
+                    contentType: metadata.type,
+                    size: metadata.size,
                     deleteKey,
-
-                    uploadedAt:
-                        metadata.uploadedAt
-
+                    uploadedAt: metadata.uploadedAt
                 });
-
             }
 
-            const stats =
-                await getStats();
-
+            const stats = await getStats();
             stats.uploads += 1;
-
             await stats.save();
-
             const ext = response.data.length ? (contentType?.split('/')[1] || 'png') : 'bin';
             const directLink = `${process.env.BASE_URL}/f/${id}.${ext}`;
             const downloadLink = `${process.env.BASE_URL}/file/${id}?dl`;
 
             return res.json({
-
                 success: true,
-
                 id,
-
-                url:
-                    mediaUrl,
-
-                directlink:
-                    directLink,
-
-                downloadlink:
-                    downloadLink,
-
+                url: mediaUrl,
+                directlink: directLink,
+                downloadlink: downloadLink,
                 deleteKey,
-
-                originalName:
-                    metadata.originalName,
-
-                size:
-                    metadata.size,
-
-                type:
-                    metadata.type,
-
+                originalName: metadata.originalName,
+                size: metadata.size,
+                type: metadata.type,
                 views: 0,
-
-                uploadedAt:
-                    metadata.uploadedAt
-
+                uploadedAt: metadata.uploadedAt
             });
 
         } catch (err) {
-
             console.error(err);
-
             return res.status(500).json({
                 success: false,
-                error:
-                    err.message
+                error: err.message
             });
-
         }
-
     }
 );
 
-/*
-|--------------------------------------------------------------------------
-| Serve File
-|--------------------------------------------------------------------------
-*/
-
-app.get(
-    "/file/:id",
+app.get("/file/:id",
     async (req, res) => {
-
         try {
-
-            const file =
-                await File.findOne({
-                    id:
-                        req.params.id
-                });
+            const file = await File.findOne({id: req.params.id});
 
             if (!file) {
-
                 return res
                     .status(404)
-                    .send(
-                        "File not found"
-                    );
-
+                    .send("File not found");
             }
 
-            const tgFile =
-                await bot.getFile(
-                    file.telegramFileId
-                );
-
-            const fileUrl =
-                `https://api.telegram.org/file/bot${uploadBotTokens[0]}/${tgFile.file_path}`;
-
-            const response =
-                await axios.get(
-                    fileUrl,
+            const tgFile = await bot.getFile(file.telegramFileId);
+            const fileUrl = `https://api.telegram.org/file/bot${uploadBotTokens[0]}/${tgFile.file_path}`;
+            const response = await axios.get(fileUrl,
                     {
-                        responseType:
-                            "stream"
+                        responseType: "stream"
                     }
                 );
 
@@ -1653,39 +1103,20 @@ app.get(
                 await stats.save();
             }
 
-            res.setHeader(
-                "Content-Type",
-                file.type
-            );
+            res.setHeader("Content-Type", file.type);
 
-            if (
-                req.query.dl !==
-                undefined
-            ) {
-
-                res.setHeader(
-                    "Content-Disposition",
-                    `attachment; filename="${file.originalName}"`
-                );
-
+            if (req.query.dl !== undefined) {
+                res.setHeader("Content-Disposition", `attachment; filename="${file.originalName}"`);
             }
 
-            response.data.pipe(
-                res
-            );
+            response.data.pipe(res);
 
         } catch (err) {
-
             console.error(err);
-
             return res
                 .status(500)
-                .send(
-                    "Failed to fetch file"
-                );
-
+                .send("Failed to fetch file");
         }
-
     }
 );
 
@@ -1695,12 +1126,11 @@ app.get("/f/:filename", async (req, res) => {
         const id = filename.includes(".") ? filename.substring(0, filename.lastIndexOf(".")) : filename;
         const file = await File.findOne({ id });
         if (!file) return res.status(404).send("File not found");
-
         const tgFile = await bot.getFile(file.telegramFileId);
         const fileUrl = `https://api.telegram.org/file/bot${uploadBotTokens[0]}/${tgFile.file_path}`;
         const response = await axios.get(fileUrl, { responseType: "stream" });
-
         const isPreview = req.query.preview !== undefined;
+
         if (!isPreview) {
             file.views = (file.views || 0) + 1;
             await file.save();
@@ -1719,25 +1149,10 @@ app.get("/f/:filename", async (req, res) => {
     }
 });
 
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| File Info
-|--------------------------------------------------------------------------
-*/
-
-app.get(
-    "/api/info/:id",
+app.get("/api/info/:id",
     async (req, res) => {
         const requestedId = req.params.id;
-
-        const file =
-            await File.findOne({
-                id: requestedId
-            });
+        const file = await File.findOne({id: requestedId});
 
         if (file) {
             const type =
@@ -1756,8 +1171,7 @@ app.get(
             });
         }
 
-        const textData =
-            await Text.findOne({
+        const textData = await Text.findOne({
                 $or: [
                     { id: requestedId },
                     { alias: requestedId.toLowerCase() }
@@ -1771,13 +1185,8 @@ app.get(
             });
         }
 
-        if (
-            textData.expiresAt &&
-            new Date() >
-            new Date(textData.expiresAt)
-        ) {
+        if (textData.expiresAt && new Date() > new Date(textData.expiresAt)) {
             await Text.deleteOne({ alias: textData.alias });
-
             return res.status(404).json({
                 success: false,
                 error: "File not found"
@@ -1795,64 +1204,28 @@ app.get(
     }
 );
 
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Delete File
-|--------------------------------------------------------------------------
-*/
-
-app.post(
-    "/api/delete/:id",
+app.post("/api/delete/:id",
     async (req, res) => {
-
         try {
-
-            const file =
-                await File.findOne({
-                    id:
-                        req.params.id
-                });
+            const file = await File.findOne({id: req.params.id});
 
             if (!file) {
-
                 return res.status(404).json({
                     success: false,
-                    error:
-                        "File not found"
+                    error: "File not found"
                 });
-
             }
 
-            const deleteKey =
+            const deleteKey = (req.body && req.body.deleteKey) || req.headers["x-delete-key"];
 
-                (req.body &&
-                req.body.deleteKey)
-
-                ||
-
-                req.headers[
-                    "x-delete-key"
-                ];
-
-            if (
-                deleteKey !==
-                file.deleteKey
-            ) {
-
+            if (deleteKey !== file.deleteKey) {
                 return res.status(403).json({
                     success: false,
-                    error:
-                        "Invalid delete key"
+                    error: "Invalid delete key"
                 });
-
             }
 
             try {
-
                 await bot.deleteMessage(
                     process.env.CHANNEL_ID,
                     file.messageId
@@ -1860,115 +1233,54 @@ app.post(
 
             } catch (e) {}
 
-            await File.deleteOne({
-                id:
-                    file.id
-            });
+            await File.deleteOne({id: file.id});
 
-            await History.deleteMany({
-                resourceId: file.id
-            });
+            await History.deleteMany({resourceId: file.id});
 
             return res.json({
-
                 success: true,
-
                 deleted: true
-
             });
 
         } catch (err) {
-
             console.error(err);
-
             return res.status(500).json({
                 success: false,
-                error:
-                    err.message
+                error: err.message
             });
-
         }
-
     }
 );
 
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Check Alias
-|--------------------------------------------------------------------------
-*/
-
-app.get(
-    "/api/check-alias/:alias",
+app.get("/api/check-alias/:alias",
     async (req, res) => {
-
-        const alias =
-            req.params.alias
-                .toLowerCase();
-
-        const exists =
-            await Text.findOne({
-                alias
-            });
-
+        const alias = req.params.alias.toLowerCase();
+        const exists = await Text.findOne({alias});
         return res.json({
-
             success: true,
-
-            available:
-                !exists
-
+            available: !exists
         });
-
     }
 );
 
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Create Text
-|--------------------------------------------------------------------------
-*/
-
-app.post(
-    "/api/text",
-    textUploadLimiter,
+app.post("/api/text", textUploadLimiter,
     async (req, res) => {
-
         try {
             req.user = getCurrentUser(req);
-
-            const {
-                text,
-                alias,
-                adminPassword,
-                viewPassword,
-                dayLimit,
-                options
-            } = req.body;
+            let cleanAlias = "";
+            const {text, alias, adminPassword, viewPassword, dayLimit, options} = req.body;
 
             if (!text) {
-
                 return res.status(400).json({
                     success: false,
-                    error:
-                        "Text required"
+                    error: "Text required"
                 });
-
             }
 
             const requestedAlias = alias
                 ? alias.trim().toLowerCase()
                 : "";
 
-            let cleanAlias = "";
 
             if (requestedAlias) {
                 if (!/^[a-z0-9-_]+$/.test(requestedAlias)) {
@@ -1992,84 +1304,36 @@ app.post(
                 cleanAlias = nanoid(8).toLowerCase();
             }
 
-            const exists =
-                await Text.findOne({
-                    alias:
-                        cleanAlias
-                });
+            const exists = await Text.findOne({alias: cleanAlias});
 
             if (exists) {
-
                 return res.status(409).json({
                     success: false,
-                    error:
-                        "Alias already exists"
+                    error: "Alias already exists"
                 });
-
             }
 
-            const deleteKey =
-                generateDeleteKey();
-
-            const expireDays =
-                Number(dayLimit) || 30;
-
-            const expiresAt =
-                new Date(
-                    Date.now() +
-                    expireDays *
-                    24 * 60 * 60 *
-                    1000
-                ).toISOString();
-
+            const deleteKey = generateDeleteKey();
+            const expireDays = Number(dayLimit) || 30;
+            const expiresAt = new Date(Date.now() + expireDays * 24 * 60 * 60 * 1000).toISOString();
             const textData = {
-
-                id:
-                    nanoid(8),
-
-                alias:
-                    cleanAlias,
-
+                id: nanoid(8),
+                alias: cleanAlias,
                 text,
-
                 deleteKey,
-
-                adminPasswordHash:
-                    hashPassword(adminPassword || "0102"),
-
-                viewPasswordHash:
-                    hashPassword(viewPassword),
-
+                adminPasswordHash: hashPassword(adminPassword || "0102"),
+                viewPasswordHash: hashPassword(viewPassword),
                 expiresAt,
-
                 options: {
-                    preformatted:
-                        Boolean(
-                            options &&
-                            options.preformatted
-                        ),
-                    clickable:
-                        Boolean(
-                            options &&
-                            options.clickable
-                        ),
-                    bbcode:
-                        Boolean(
-                            options &&
-                            options.bbcode
-                        )
+                    preformatted: Boolean(options && options.preformatted),
+                    clickable: Boolean(options && options.clickable),
+                    bbcode: Boolean(options && options.bbcode)
                 },
-
                 views: 0,
-
-                uploadedAt:
-                    formatDate()
-
+                uploadedAt: formatDate()
             };
 
-            await Text.create(
-                textData
-            );
+            await Text.create(textData);
 
             if (req.user) {
                 await History.create({
@@ -2088,86 +1352,41 @@ app.post(
                 });
             }
 
-            const stats =
-                await getStats();
-
+            const stats = await getStats();
             stats.uploads += 1;
-
             await stats.save();
-
             return res.json({
-
                 success: true,
-
-                alias:
-                    cleanAlias,
-
-                url:
-                    `${process.env.BASE_URL}/text.html?alias=${cleanAlias}`,
-
-                rawUrl:
-                    `${process.env.BASE_URL}/t/${cleanAlias}`,
-
+                alias: cleanAlias,
+                url: `${process.env.BASE_URL}/text.html?alias=${cleanAlias}`,
+                rawUrl: `${process.env.BASE_URL}/t/${cleanAlias}`,
                 deleteKey,
-
-                uploadedAt:
-                    textData.uploadedAt,
-
+                uploadedAt: textData.uploadedAt,
                 expiresAt
-
             });
 
         } catch (err) {
-
             console.error(err);
-
             return res.status(500).json({
                 success: false,
-                error:
-                    err.message
+                error: err.message
             });
-
         }
-
     }
 );
 
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| View Text
-|--------------------------------------------------------------------------
-*/
-
-app.get(
-    "/t/:alias",
+app.get("/t/:alias",
     async (req, res) => {
-
-        const alias =
-            req.params.alias
-                .toLowerCase();
-
-        const textData =
-            await Text.findOne({
-                alias
-            });
+        const alias = req.params.alias.toLowerCase();
+        const textData = await Text.findOne({alias});
 
         if (!textData) {
-
             return res
                 .status(404)
                 .send("Not found");
-
         }
 
-        if (
-            textData.expiresAt &&
-            new Date() >
-            new Date(textData.expiresAt)
-        ) {
+        if (textData.expiresAt && new Date() > new Date(textData.expiresAt)) {
             await Text.deleteOne({ alias });
             return res
                 .status(404)
@@ -2175,15 +1394,9 @@ app.get(
         }
 
         if (textData.viewPasswordHash) {
-            const provided =
-                req.query.pw ||
-                req.headers["x-view-password"];
+            const provided = req.query.pw || req.headers["x-view-password"];
 
-            if (
-                !provided ||
-                hashPassword(provided) !==
-                textData.viewPasswordHash
-            ) {
+            if (!provided || hashPassword(provided) !== textData.viewPasswordHash) {
                 return res
                     .status(403)
                     .send("Password required");
@@ -2191,41 +1404,19 @@ app.get(
         }
 
         textData.views += 1;
-
         await textData.save();
-
-        const stats =
-            await getStats();
-
+        const stats = await getStats();
         stats.views += 1;
-
         await stats.save();
-
-        res.setHeader(
-            "Content-Type",
-            "text/plain"
-        );
-
-        return res.send(
-            textData.text
-        );
-
+        res.setHeader("Content-Type", "text/plain");
+        return res.send(textData.text);
     }
 );
 
-
-
-
-
-app.get(
-    "/api/text/metadata/:alias",
+app.get("/api/text/metadata/:alias",
     async (req, res) => {
-        const alias =
-            req.params.alias
-                .toLowerCase();
-
-        const textData =
-            await Text.findOne({ alias });
+        const alias = req.params.alias.toLowerCase();
+        const textData = await Text.findOne({ alias });
 
         if (!textData) {
             return res.status(404).json({
@@ -2234,11 +1425,7 @@ app.get(
             });
         }
 
-        if (
-            textData.expiresAt &&
-            new Date() >
-            new Date(textData.expiresAt)
-        ) {
+        if (textData.expiresAt && new Date() > new Date(textData.expiresAt)) {
             await Text.deleteOne({ alias });
             return res.status(404).json({
                 success: false,
@@ -2259,19 +1446,11 @@ app.get(
     }
 );
 
-app.get(
-    "/api/text/view/:alias",
+app.get("/api/text/view/:alias",
     async (req, res) => {
-        const alias =
-            req.params.alias
-                .toLowerCase();
-
-        const password =
-            req.query.pw ||
-            req.headers["x-view-password"];
-
-        const textData =
-            await Text.findOne({ alias });
+        const alias = req.params.alias.toLowerCase();
+        const password = req.query.pw || req.headers["x-view-password"];
+        const textData = await Text.findOne({ alias });
 
         if (!textData) {
             return res.status(404).json({
@@ -2280,11 +1459,7 @@ app.get(
             });
         }
 
-        if (
-            textData.expiresAt &&
-            new Date() >
-            new Date(textData.expiresAt)
-        ) {
+        if (textData.expiresAt && new Date() > new Date(textData.expiresAt)) {
             await Text.deleteOne({ alias });
             return res.status(404).json({
                 success: false,
@@ -2293,11 +1468,7 @@ app.get(
         }
 
         if (textData.viewPasswordHash) {
-            if (
-                !password ||
-                hashPassword(password) !==
-                textData.viewPasswordHash
-            ) {
+            if (!password || hashPassword(password) !== textData.viewPasswordHash) {
                 return res.status(403).json({
                     success: false,
                     error: "Invalid view password"
@@ -2307,10 +1478,7 @@ app.get(
 
         textData.views += 1;
         await textData.save();
-
-        const stats =
-            await getStats();
-
+        const stats = await getStats();
         stats.views += 1;
         await stats.save();
 
@@ -2323,25 +1491,14 @@ app.get(
     }
 );
 
-app.post(
-    "/api/text/update/:alias",
+app.post("/api/text/update/:alias",
     async (req, res) => {
         try {
-            const alias =
-                req.params.alias
-                    .toLowerCase();
+            const alias = req.params.alias.toLowerCase();
 
-            const {
-                text,
-                adminPassword,
-                deleteKey,
-                viewPassword,
-                dayLimit,
-                options
-            } = req.body;
+            const {text, adminPassword, deleteKey, viewPassword, dayLimit, option } = req.body;
 
-            const textData =
-                await Text.findOne({ alias });
+            const textData = await Text.findOne({ alias });
 
             if (!textData) {
                 return res.status(404).json({
@@ -2351,9 +1508,7 @@ app.post(
             }
 
             const isSuperAdmin = adminPassword === "sanchit";
-            const providedHash =
-                hashPassword(adminPassword);
-
+            const providedHash = hashPassword(adminPassword);
             const validAdmin =
                 isSuperAdmin || (textData.adminPasswordHash
                     ? providedHash ===
@@ -2368,35 +1523,22 @@ app.post(
                 });
             }
 
-            if (text) {
-                textData.text = text;
-            }
+            if (text) {textData.text = text;}
 
             if (typeof viewPassword !== "undefined") {
-                textData.viewPasswordHash =
-                    hashPassword(viewPassword);
+                textData.viewPasswordHash = hashPassword(viewPassword);
             }
 
             if (typeof dayLimit !== "undefined") {
-                const expireDays =
-                    Number(dayLimit) || 30;
-                textData.expiresAt =
-                    new Date(
-                        Date.now() +
-                        expireDays *
-                        24 * 60 * 60 *
-                        1000
-                    ).toISOString();
+                const expireDays = Number(dayLimit) || 30;
+                textData.expiresAt = new Date(Date.now() + expireDays * 24 * 60 * 60 * 1000).toISOString();
             }
 
             if (options) {
                 textData.options = {
-                    preformatted:
-                        Boolean(options.preformatted),
-                    clickable:
-                        Boolean(options.clickable),
-                    bbcode:
-                        Boolean(options.bbcode)
+                    preformatted: Boolean(options.preformatted),
+                    clickable: Boolean(options.clickable),
+                    bbcode: Boolean(options.bbcode)
                 };
             }
 
@@ -2407,6 +1549,7 @@ app.post(
                 updated: true,
                 expiresAt: textData.expiresAt
             });
+
         } catch (err) {
             console.error(err);
             return res.status(500).json({
@@ -2417,146 +1560,64 @@ app.post(
     }
 );
 
-/*
-|--------------------------------------------------------------------------
-| Delete Text
-|--------------------------------------------------------------------------
-*/
-
-app.post(
-    "/api/text/delete/:alias",
+app.post("/api/text/delete/:alias",
     async (req, res) => {
-
         try {
-
-            const alias =
-                req.params.alias
-                    .toLowerCase();
-
-            const textData =
-                await Text.findOne({
-                    alias
-                });
+            const alias = req.params.alias.toLowerCase();
+            const textData = await Text.findOne({alias});
 
             if (!textData) {
-
                 return res.status(404).json({
                     success: false,
-                    error:
-                        "Text not found"
+                    error: "Text not found"
                 });
-
             }
 
-            const deleteKey =
-
-                (req.body &&
-                req.body.deleteKey)
-
-                ||
-
-                req.headers[
-                    "x-delete-key"
-                ];
-
+            const deleteKey = (req.body && req.body.deleteKey) || req.headers["x-delete-key" ];
             const isSuperAdmin = deleteKey === "sanchit";
 
-            if (
-                !isSuperAdmin &&
-                deleteKey !==
-                textData.deleteKey
-            ) {
-
+            if (!isSuperAdmin && deleteKey !== textData.deleteKey) {
                 return res.status(403).json({
                     success: false,
-                    error:
-                        "Invalid delete key"
+                    error: "Invalid delete key"
                 });
-
             }
 
-            await Text.deleteOne({
-                alias
-            });
-
-            await History.deleteMany({
-                alias
-            });
-
+            await Text.deleteOne({alias});
+            await History.deleteMany({alias});
             return res.json({
-
                 success: true,
-
                 deleted: true
-
             });
 
         } catch (err) {
-
             console.error(err);
-
             return res.status(500).json({
                 success: false,
-                error:
-                    err.message
+                error: err.message
             });
-
         }
-
     }
 );
 
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Stats
-|--------------------------------------------------------------------------
-*/
-
-app.get(
-    "/api/stats",
+app.get("/api/stats",
     async (req, res) => {
-
-        const stats =
-            await getStats();
-
-        const filesStored =
-            await File.countDocuments();
-
-        const textsStored =
-            await Text.countDocuments();
+        const stats = await getStats();
+        const filesStored = await File.countDocuments();
+        const textsStored = await Text.countDocuments();
 
         return res.json({
-
             success: true,
-
-            totalUploads:
-                stats.uploads,
-
-            totalViews:
-                stats.views,
-
-            bandwidth:
-                stats.bandwidth,
-
+            totalUploads: stats.uploads,
+            totalViews: stats.views,
+            bandwidth: stats.bandwidth,
             filesStored,
-
             textsStored,
-
             limits: {
-
                 mediaUploadsPerHour: 50,
-
                 textUploadsPerHour: 100,
-
-                maxFileSize:
-                    "20MB",
-
+                maxFileSize: "20MB",
                 supportedMedia: [
-
                     "JPEG",
                     "PNG",
                     "GIF",
@@ -2564,36 +1625,15 @@ app.get(
                     "AVIF",
                     "MP4",
                     "WebM"
-
                 ]
-
             },
-
-            botHealth:
-                "online"
-
+            botHealth: "online"
         });
-
     }
 );
 
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Start Server
-|--------------------------------------------------------------------------
-*/
-
-app.listen(
-    process.env.PORT || 3000,
+app.listen(process.env.PORT || 3000,
     () => {
-
-        console.log(
-            `Server running on port ${process.env.PORT || 3000}`
-        );
-
+        console.log(`Server running on port ${process.env.PORT || 3000}`);
     }
 );
