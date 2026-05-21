@@ -369,7 +369,9 @@ async function loadUserHistory() {
     }
 
     try {
-        const res = await fetch(`${apiBase}/api/history`);
+        const res = await fetch(`${apiBase}/api/history`, {
+            cache: 'no-store'
+        });
         if (!res.ok) {
             throw new Error("Unable to load history");
         }
