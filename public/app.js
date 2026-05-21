@@ -116,14 +116,15 @@ function debounceUpload(fn, progressFlag) {
 
 function setupMobileNavigation() {
     const topbar = document.querySelector(".topbar");
+    if (!topbar) return;
+
     const nav = topbar?.querySelector("nav");
     const existingToggle = topbar.querySelector(".menu-toggle");
     const existingOverlay = document.querySelector(".nav-overlay");
     const menuButton = document.createElement("button");
     const overlay = document.createElement("button");
-    const isOpen = document.body.classList.toggle("nav-open");
 
-    if (!topbar || !nav) return;
+    if (!nav) return;
     if (existingToggle) existingToggle.remove();
     if (existingOverlay) existingOverlay.remove();
 
@@ -140,15 +141,21 @@ function setupMobileNavigation() {
     function closeMenu() {
         document.body.classList.remove("nav-open");
         menuButton.setAttribute("aria-expanded", "false");
+        menuButton.setAttribute("aria-label", "Open navigation menu");
     }
 
     function openMenu() {
         document.body.classList.add("nav-open");
         menuButton.setAttribute("aria-expanded", "true");
+        menuButton.setAttribute("aria-label", "Close navigation menu");
     }
 
     menuButton.addEventListener("click", () => {
-        menuButton.setAttribute("aria-expanded", String(isOpen));
+        if (document.body.classList.contains("nav-open")) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
     });
 
     overlay.addEventListener("click", closeMenu);

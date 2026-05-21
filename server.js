@@ -209,6 +209,27 @@ function clearAuthCookie(res) {
     });
 }
 
+function getBaseUrl(req) {
+    const configuredBaseUrl = (process.env.BASE_URL || "").trim();
+    if (configuredBaseUrl) {
+        return configuredBaseUrl.replace(/\/+$/, "");
+    }
+
+    return `${req.protocol}://${req.get("host")}`;
+}
+
+function getGoogleRedirectUri(req) {
+    return `${getBaseUrl(req)}/auth/google/callback`;
+}
+
+function getOAuthStateCookieOptions() {
+    return {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax"
+    };
+}
+
 const emailTransporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT || 587,
@@ -841,15 +862,14 @@ app.post("/api/history/clear", requireAuth,
 app.get("/auth/google",
     (req, res) => {
         const clientId = process.env.GOOGLE_CLIENT_ID;
-        const redirectUri =`${process.env.BASE_URL || "http://localhost:3000"}/auth/google/callback`;
-        if (!clientId) {
+        const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+        const redirectUri = getGoogleRedirectUri(req);
+        if (!clientId || !clientSecret) {
             return res.status(500).send("Google OAuth is not configured");
         }
         const state = nanoid(16);
         res.cookie("oauth_state", state, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
+            ...getOAuthStateCookieOptions(),
             maxAge: 10 * 60 * 1000
         });
         const authUrl =
@@ -868,9 +888,14 @@ app.get("/auth/google/callback",
     async (req, res) => {
         try {
             const { code, state } = req.query;
+            const redirectUri = getGoogleRedirectUri(req);
             
             if (!code || !state) {
                 return res.status(400).send("Google OAuth callback missing code or state");
+            }
+
+            if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+                return res.status(500).send("Google OAuth is not configured");
             }
 
             if (state !== req.cookies.oauth_state) {
@@ -882,7 +907,7 @@ app.get("/auth/google/callback",
                         code: String(code),
                         client_id: process.env.GOOGLE_CLIENT_ID,
                         client_secret: process.env.GOOGLE_CLIENT_SECRET,
-                        redirect_uri: `${process.env.BASE_URL || "http://localhost:3000"}/auth/google/callback`,
+                        redirect_uri: redirectUri,
                         grant_type: "authorization_code"
                     }).toString(),
                     {
@@ -925,8 +950,8 @@ app.get("/auth/google/callback",
 
             const token = signToken(user);
             setAuthCookie(res, token);
-            res.clearCookie("oauth_state");
-            return res.redirect(process.env.BASE_URL || "/");
+            res.clearCookie("oauth_state", getOAuthStateCookieOptions());
+            return res.redirect(getBaseUrl(req));
 
         } catch (err) {
             console.error(err);
