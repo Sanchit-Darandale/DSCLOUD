@@ -1,7 +1,5 @@
 # DSCLOUD - Free Text & Media Hosting Platform
 
-![DSCLOUD](https://dscloud.vercel.app/logo.png)
-
 DSCLOUD is a modern, free, and open-source text and media hosting platform designed for simplicity, security, and speed. Share files, host text snippets, and manage your uploads with ease.
 
 ## 🚀 Features
@@ -62,8 +60,8 @@ Visit us at: [https://dscloud.vercel.app](https://dscloud.vercel.app)
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/sanchit0102/TG_HOSTING.git
-cd TG_HOSTING
+git clone https://github.com/Sanchit-Darandale/DSCLOUD.git
+cd DSCLOUD
 ```
 
 ### 2. Install Dependencies
@@ -75,27 +73,14 @@ npm install
 Create a `.env` file in the root directory with the following variables:
 
 ```env
-# Bot Configuration
 BOT_TOKENS=your_telegram_bot_tokens
-
-# Server Configuration
 PORT=3000
 BASE_URL=https://dscloud.vercel.app
-
-# Database
 MONGO_URI=mongodb://localhost:27017/test
-
-# File Upload
 MAX_FILE_SIZE=26214400
-
-# Google OAuth
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
-
-# Authentication
 AUTH_SECRET=your_auth_secret_key
-
-# Email Service
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_SECURE=false
@@ -220,14 +205,14 @@ This project is provided as-is for personal and educational use.
 ## 👨‍💻 Developer
 
 **Sanchit Darandale**
-- GitHub: [@sanchit0102](https://github.com/sanchit0102/)
-- Email: contact@dscloud.app
+- GitHub: [@Sanchit-Darandale](https://github.com/sanchit-darandale/)
+- Email: sanchitdarandale1@gmail.com
 
 ## 🔗 Links
 
 - **Website**: [https://dscloud.vercel.app](https://dscloud.vercel.app)
-- **GitHub**: [https://github.com/sanchit0102/TG_HOSTING](https://github.com/sanchit0102/TG_HOSTING)
-- **Report Issues**: [GitHub Issues](https://github.com/sanchit0102/TG_HOSTING/issues)
+- **GitHub**: [https://github.com/Sanchit-Darandale/DSCLOUD](https://github.com/Sanchit-Darandale/DSCLOUD)
+- **Report Issues**: [GitHub Issues](https://github.com/Sanchit-Darandale/DSCLOUD/issues)
 
 ## 📞 Support
 
