@@ -7,7 +7,7 @@ const crypto = require("crypto");
 const cors = require("cors");
 const mime = require("mime-types");
 const path = require("path");
-const { nanoid } = require("nanoid");
+let nanoid;
 const TelegramBot = require("node-telegram-bot-api");
 const rateLimit = require("express-rate-limit");
 const mongoose = require("mongoose");
@@ -1632,8 +1632,18 @@ app.get("/api/stats",
     }
 );
 
-app.listen(process.env.PORT || 3000,
-    () => {
-        console.log(`Server running on port ${process.env.PORT || 3000}`);
+async function initializeServer() {
+    try {
+        const nanoidModule = await import('nanoid');
+        nanoid = nanoidModule.nanoid;
+
+        app.listen(process.env.PORT || 3000, () => {
+            console.log(`Server running on port ${process.env.PORT || 3000}`);
+        });
+    } catch (err) {
+        console.error('Failed to import nanoid:', err);
+        process.exit(1);
     }
-);
+}
+
+initializeServer();
