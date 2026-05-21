@@ -1610,7 +1610,7 @@ button.button:hover {
         position: absolute;
         right: 1rem;
         top: 50%;
-        z-index: 31;
+        z-index: 70;
         display: grid;
         gap: 4px;
         width: 42px;
@@ -1621,6 +1621,12 @@ button.button:hover {
         background: rgba(255, 255, 255, 0.06);
         transform: translateY(-50%);
         cursor: pointer;
+    }
+
+    body.nav-open .menu-toggle {
+        border-color: rgba(124, 197, 255, 0.35);
+        background: rgba(124, 197, 255, 0.14);
+        box-shadow: 0 0 24px rgba(40, 142, 255, 0.28);
     }
 
     .menu-toggle span {
