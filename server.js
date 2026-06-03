@@ -23,6 +23,17 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+// Sitemap and Robots.txt routes (Explicitly registered early)
+app.get('/sitemap.xml', (req, res) => {
+    res.type('application/xml');
+    res.sendFile(path.join(__dirname, 'public', 'sitemap.xml'));
+});
+
+app.get('/robots.txt', (req, res) => {
+    res.type('text/plain');
+    res.sendFile(path.join(__dirname, 'public', 'robots.txt'));
+});
+
 app.use('/api', (req, res, next) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.set('Pragma', 'no-cache');
@@ -1533,7 +1544,7 @@ app.post("/api/text/update/:alias",
         try {
             const alias = req.params.alias.toLowerCase();
 
-            const {text, adminPassword, deleteKey, viewPassword, dayLimit, option } = req.body;
+            const {text, adminPassword, deleteKey, viewPassword, dayLimit, options } = req.body;
 
             const textData = await Text.findOne({ alias });
 
