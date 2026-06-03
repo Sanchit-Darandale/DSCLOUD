@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "buildCommand": "npm ci",
   "builds": [
     {
       "src": "server.js",
@@ -9,8 +8,36 @@
   ],
   "routes": [
     {
-      "src": "/public/(.*)",
-      "dest": "/public/$1"
+      "src": "/sitemap.xml",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/robots.txt",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/(index|privacy|terms|text|text-host)\\.html",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/file/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/f/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/auth/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/t/(.*)",
+      "dest": "/server.js"
     },
     {
       "src": "/(.*)",
