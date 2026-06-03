@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "buildCommand": "npm ci",
   "builds": [
     {
       "src": "server.js",
@@ -8,44 +9,8 @@
   ],
   "routes": [
     {
-      "src": "/sitemap.xml",
-      "dest": "/public/sitemap.xml"
-    },
-    {
-      "src": "/robots.txt",
-      "dest": "/public/robots.txt"
-    },
-    {
-      "src": "/(favicon|apple-touch-icon|logo|oldlogo)(.*)\\.(png|ico|jpg)",
-      "dest": "/public/$1$2.$3"
-    },
-    {
-      "src": "/(styles|app)\\.(css|js)",
-      "dest": "/public/$1.$2"
-    },
-    {
-      "src": "/(index|privacy|terms|text|text-host)\\.html",
-      "dest": "/public/$1.html"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/file/(.*)",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/f/(.*)",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/auth/(.*)",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/t/(.*)",
-      "dest": "/server.js"
+      "src": "/public/(.*)",
+      "dest": "/public/$1"
     },
     {
       "src": "/(.*)",
