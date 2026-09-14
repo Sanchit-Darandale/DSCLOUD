@@ -541,9 +541,16 @@ app.post("/api/upload", mediaUploadLimiter, upload.single("file"),
                 });
             }
 
-            const allowed = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/avif", "video/mp4", "video/webm"];
+            const allowed = [
+                "image/jpeg", "image/png", "image/gif", "image/webp", "image/avif", "image/bmp", "image/svg+xml",
+                "video/mp4", "video/quicktime", "video/x-msvideo", "video/webm", "video/x-matroska",
+                "audio/mpeg", "audio/wav", "audio/x-wav",
+                "application/pdf", "text/plain", "application/json", "text/csv",
+                "application/octet-stream"
+            ];
 
-            if (!allowed.includes(req.file.mimetype)) {
+            const normalizedMime = req.file.mimetype || "";
+            if (!allowed.includes(normalizedMime)) {
                 return res.status(400).json({
                     success: false,
                     error: "Unsupported file type"
@@ -990,13 +997,17 @@ app.post("/api/upload-url", mediaUploadLimiter,
                     }
                 );
 
-            const contentType = response.headers["content-type"];
+            c    onst contentType = response.headers["content-type"];
 
-            const allowed = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/avif", "video/mp4", "video/webm"];
+            const allowed = [
+                "image/jpeg", "image/png", "image/gif", "image/webp", "image/avif", "image/bmp", "image/svg+xml",
+                "video/mp4", "video/quicktime", "video/x-msvideo", "video/webm", "video/x-matroska",
+                "audio/mpeg", "audio/wav", "audio/x-wav",
+                "application/pdf", "text/plain", "application/json", "text/csv",
+                "application/octet-stream"
+            ];
 
-            if (
-                !allowed.includes(contentType)
-            ) {
+            if (!allowed.includes(contentType)) {
                 return res.status(400).json({
                     success: false,
                     error: "Unsupported remote file type"
