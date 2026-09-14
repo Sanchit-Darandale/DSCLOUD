@@ -997,7 +997,7 @@ app.post("/api/upload-url", mediaUploadLimiter,
                     }
                 );
 
-            c    onst contentType = response.headers["content-type"];
+            const contentType = response.headers["content-type"];
 
             const allowed = [
                 "image/jpeg", "image/png", "image/gif", "image/webp", "image/avif", "image/bmp", "image/svg+xml",
