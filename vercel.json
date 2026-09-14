@@ -1,5 +1,11 @@
 {
   "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    }
+  ],
   "redirects": [
     {
       "source": "/:path*",
@@ -50,5 +56,8 @@
       "src": "/(.*)",
       "dest": "/server.js"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
