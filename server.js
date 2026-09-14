@@ -530,6 +530,43 @@ const upload = multer({
     }
 });
 
+const allowedMimeTypes = [
+    "image/jpeg", "image/png", "image/gif", "image/webp", "image/avif", "image/bmp", "image/svg+xml",
+    "image/x-ms-bmp",
+    "video/mp4", "video/quicktime", "video/x-msvideo", "video/webm", "video/x-matroska",
+    "video/3gpp", "video/3gpp2",
+    "audio/mpeg", "audio/mp3", "audio/wav", "audio/x-wav", "audio/aac", "audio/flac", "audio/ogg", "audio/m4a",
+    "application/pdf", "text/plain", "application/json", "text/csv", "application/xml", "text/xml",
+    "application/msword", "application/vnd.ms-excel", "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "application/zip", "application/x-zip-compressed", "application/x-rar-compressed", "application/x-7z-compressed",
+    "application/octet-stream", "application/x-tgsticker"
+];
+
+const allowedExtensions = new Set([
+    "png", "jpg", "jpeg", "gif", "webp", "svg", "bmp",
+    "mp4", "mov", "avi", "webm", "mkv", "3gp", "3g2",
+    "mp3", "wav", "aac", "flac", "ogg", "m4a",
+    "pdf", "txt", "json", "csv", "xml", "yaml", "yml",
+    "doc", "docx", "xls", "xlsx", "ppt", "pptx",
+    "zip", "rar", "7z", "tar", "gz", "bz2", "xz",
+    "md", "js", "css", "html", "sql",
+    "webp", "tgs", "sticker"
+]);
+
+function isAllowedUploadType(file) {
+    const mimeType = (file && (file.mimetype || file.type)) || "";
+    if (allowedMimeTypes.includes(mimeType)) {
+        return true;
+    }
+
+    const originalName = (file && (file.originalname || file.name)) || "";
+    const extension = originalName.split(".").pop()?.toLowerCase();
+    return Boolean(extension && allowedExtensions.has(extension));
+}
+
 app.post("/api/upload", mediaUploadLimiter, upload.single("file"),
     async (req, res) => {
         try {
@@ -540,17 +577,8 @@ app.post("/api/upload", mediaUploadLimiter, upload.single("file"),
                     error: "No file uploaded"
                 });
             }
-
-            const allowed = [
-                "image/jpeg", "image/png", "image/gif", "image/webp", "image/avif", "image/bmp", "image/svg+xml",
-                "video/mp4", "video/quicktime", "video/x-msvideo", "video/webm", "video/x-matroska",
-                "audio/mpeg", "audio/wav", "audio/x-wav",
-                "application/pdf", "text/plain", "application/json", "text/csv",
-                "application/octet-stream"
-            ];
-
-            const normalizedMime = req.file.mimetype || "";
-            if (!allowed.includes(normalizedMime)) {
+            
+            if (!isAllowedUploadType(req.file)) {
                 return res.status(400).json({
                     success: false,
                     error: "Unsupported file type"
@@ -1001,13 +1029,20 @@ app.post("/api/upload-url", mediaUploadLimiter,
 
             const allowed = [
                 "image/jpeg", "image/png", "image/gif", "image/webp", "image/avif", "image/bmp", "image/svg+xml",
+                "image/x-ms-bmp",
                 "video/mp4", "video/quicktime", "video/x-msvideo", "video/webm", "video/x-matroska",
-                "audio/mpeg", "audio/wav", "audio/x-wav",
-                "application/pdf", "text/plain", "application/json", "text/csv",
-                "application/octet-stream"
+                "video/3gpp", "video/3gpp2",
+                "audio/mpeg", "audio/mp3", "audio/wav", "audio/x-wav", "audio/aac", "audio/flac", "audio/ogg", "audio/m4a",
+                "application/pdf", "text/plain", "application/json", "text/csv", "application/xml", "text/xml",
+                "application/msword", "application/vnd.ms-excel", "application/vnd.ms-powerpoint",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                "application/zip", "application/x-zip-compressed", "application/x-rar-compressed", "application/x-7z-compressed",
+                "application/octet-stream", "application/x-tgsticker"
             ];
 
-            if (!allowed.includes(contentType)) {
+            if (!allowed.includes(contentType) && !allowedExtensions.has((mime.extension(contentType) || "").toLowerCase())) {
                 return res.status(400).json({
                     success: false,
                     error: "Unsupported remote file type"
