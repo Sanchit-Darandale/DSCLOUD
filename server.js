@@ -17,6 +17,19 @@ const nodemailer = require("nodemailer");
 const app = express();
 
 app.disable("etag");
+
+app.use((req, res, next) => {
+    const host = (req.headers.host || '').toLowerCase();
+    const isVercelHost = host === 'dscloud.vercel.app';
+
+    if (isVercelHost) {
+        const target = 'https://dscloud.onrender.com' + req.originalUrl;
+        return res.redirect(301, target);
+    }
+
+    next();
+});
+
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
