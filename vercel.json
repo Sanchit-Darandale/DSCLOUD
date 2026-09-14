@@ -1,9 +1,16 @@
 {
   "version": 2,
-  "builds": [
+  "redirects": [
     {
-      "src": "server.js",
-      "use": "@vercel/node"
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "dscloud.vercel.app"
+        }
+      ],
+      "destination": "https://dscloud.onrender.com/:path*",
+      "statusCode": 301
     }
   ],
   "routes": [
@@ -43,8 +50,5 @@
       "src": "/(.*)",
       "dest": "/server.js"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
